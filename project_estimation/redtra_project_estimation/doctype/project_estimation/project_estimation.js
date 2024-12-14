@@ -42,7 +42,7 @@ frappe.ui.form.on('Project Estimation', {
     refresh: function(frm) {   
         let total_hours = 0;
         frm.doc.items.forEach(item => {
-            total_hours += item.total_hours;
+            total_hours += item.total_man_power_hours;
         })
         frm.set_value('total_hours', total_hours);
 
