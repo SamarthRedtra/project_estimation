@@ -41,10 +41,13 @@ frappe.ui.form.on('Project Estimation', {
     },
     refresh: function(frm) {   
         let total_hours = 0;
+        let total_material_cost = 0;
         frm.doc.items.forEach(item => {
             total_hours += item.total_man_power_hours;
+            total_material_cost += item.total_amount;
         })
         frm.set_value('total_hours', total_hours);
+        frm.set_value('total_material_cost', total_material_cost);
 
         let total_amount = 0;
         if(frm.doc.hourly_rate>0){
@@ -72,6 +75,10 @@ frappe.ui.form.on('Project Estimation', {
             }
         });
 
+    },
+    total_amount: function(frm) {
+        
+        frm.set_value('total_labour_cost', frm.doc.total_amount);
     },
     hourly_rate: function(frm) {
         let total_amount = 0

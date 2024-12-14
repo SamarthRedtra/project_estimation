@@ -24,10 +24,12 @@
   "total_hours",
   "total_amount",
   "ovehead_value",
+  "total_labour_cost",
   "column_break_fhwz",
   "hourly_rate",
   "overhead",
-  "total_estimated_value"
+  "total_estimated_value",
+  "total_material_cost"
  ],
  "fields": [
   {
@@ -126,7 +128,8 @@
   {
    "fieldname": "total_amount",
    "fieldtype": "Currency",
-   "label": "Total Amount"
+   "label": "Total Amount",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_fhwz",
@@ -159,12 +162,24 @@
    "label": "Default Price List",
    "link_filters": "[[\"Price List\",\"selling\",\"=\",1]]",
    "options": "Price List"
+  },
+  {
+   "fieldname": "total_labour_cost",
+   "fieldtype": "Currency",
+   "label": "Total Labour Cost",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_material_cost",
+   "fieldtype": "Currency",
+   "label": "Total Material Cost",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-12-14 09:45:18.834303",
+ "modified": "2024-12-14 10:38:47.651766",
  "modified_by": "Administrator",
  "module": "Redtra Project Estimation",
  "name": "Project Estimation",
