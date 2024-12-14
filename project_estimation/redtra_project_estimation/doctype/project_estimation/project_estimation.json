@@ -1,0 +1,191 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:PR-EST-{customer}-####",
+ "creation": "2024-12-14 01:44:58.764305",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_yc3b",
+  "title",
+  "customer",
+  "project",
+  "amended_from",
+  "column_break_path",
+  "company",
+  "project_start_date",
+  "project_end_date",
+  "price_list",
+  "project_details_section",
+  "project_and_account_brief",
+  "estimated_items_section",
+  "items",
+  "costing_section",
+  "total_hours",
+  "total_amount",
+  "ovehead_value",
+  "column_break_fhwz",
+  "hourly_rate",
+  "overhead",
+  "total_estimated_value"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_yc3b",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Project Estimation",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project",
+   "options": "Project",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_path",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project_start_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Project Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "project_end_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Project End Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "estimated_items_section",
+   "fieldtype": "Section Break",
+   "label": "Estimated Items"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "Project Estimation Items"
+  },
+  {
+   "fieldname": "project_details_section",
+   "fieldtype": "Section Break",
+   "label": "Project Details"
+  },
+  {
+   "fieldname": "project_and_account_brief",
+   "fieldtype": "Text Editor",
+   "label": "Project and Account Brief"
+  },
+  {
+   "fieldname": "costing_section",
+   "fieldtype": "Section Break",
+   "label": "Costing"
+  },
+  {
+   "fieldname": "total_hours",
+   "fieldtype": "Float",
+   "label": "Total Hours",
+   "reqd": 1
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "label": "Total Amount"
+  },
+  {
+   "fieldname": "column_break_fhwz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "hourly_rate",
+   "fieldtype": "Percent",
+   "label": "Hourly Rate",
+   "reqd": 1
+  },
+  {
+   "fieldname": "overhead",
+   "fieldtype": "Percent",
+   "label": "Overhead(%)"
+  },
+  {
+   "fieldname": "ovehead_value",
+   "fieldtype": "Currency",
+   "label": "Ovehead Value"
+  },
+  {
+   "fieldname": "total_estimated_value",
+   "fieldtype": "Currency",
+   "label": "Total Estimated Value"
+  },
+  {
+   "fieldname": "price_list",
+   "fieldtype": "Link",
+   "label": "Default Price List",
+   "link_filters": "[[\"Price List\",\"selling\",\"=\",1]]",
+   "options": "Price List"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2024-12-14 09:45:18.834303",
+ "modified_by": "Administrator",
+ "module": "Redtra Project Estimation",
+ "name": "Project Estimation",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
