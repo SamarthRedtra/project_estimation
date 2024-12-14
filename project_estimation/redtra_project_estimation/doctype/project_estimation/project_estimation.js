@@ -44,7 +44,7 @@ frappe.ui.form.on('Project Estimation', {
         let total_material_cost = 0;
         frm.doc.items.forEach(item => {
             total_hours += item.total_man_power_hours;
-            total_material_cost += item.total_amount;
+            total_material_cost += item.amount;
         })
         frm.set_value('total_hours', total_hours);
         frm.set_value('total_material_cost', total_material_cost);
