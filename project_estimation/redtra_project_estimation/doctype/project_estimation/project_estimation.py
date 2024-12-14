@@ -14,5 +14,6 @@ class ProjectEstimation(Document):
 			total_labour_cost += item.total_man_power_hours
 		self.total_material_cost = total_material_cost
 		self.total_labour_cost = self.total_amount
+		self.total_estimated_value = total_material_cost + total_labour_cost + (self.total_amount * (self.overhead / 100))
 
 		

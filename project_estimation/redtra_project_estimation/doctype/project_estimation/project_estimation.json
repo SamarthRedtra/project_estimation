@@ -23,13 +23,13 @@
   "costing_section",
   "total_hours",
   "total_amount",
-  "ovehead_value",
   "total_labour_cost",
+  "total_material_cost",
   "column_break_fhwz",
   "hourly_rate",
   "overhead",
-  "total_estimated_value",
-  "total_material_cost"
+  "ovehead_value",
+  "total_estimated_value"
  ],
  "fields": [
   {
@@ -179,7 +179,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-12-14 10:38:47.651766",
+ "modified": "2024-12-14 11:41:38.823651",
  "modified_by": "Administrator",
  "module": "Redtra Project Estimation",
  "name": "Project Estimation",

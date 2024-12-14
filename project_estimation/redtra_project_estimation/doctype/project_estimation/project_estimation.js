@@ -58,7 +58,7 @@ frappe.ui.form.on('Project Estimation', {
            // overhead is a percentage of total amount
             overhead_value = total_amount * (frm.doc.overhead/100);
             frm.set_value('ovehead_value', overhead_value);
-            total_estimated_value = total_amount + overhead_value;
+            total_estimated_value = total_amount + overhead_value + total_material_cost;
             frm.set_value('total_estimated_value', total_estimated_value);
         }
         frm.doc.items.forEach(item => {
@@ -86,11 +86,15 @@ frappe.ui.form.on('Project Estimation', {
             total_amount = frm.doc.total_hours * frm.doc.hourly_rate;
             frm.set_value('total_amount', total_amount);
         }
+        let total_material_cost = 0;
+        frm.doc.items.forEach(item => {
+            total_material_cost += item.amount;
+        })
         if(frm.doc.overhead>0){
            // overhead is a percentage of total amount
             overhead_value = total_amount * (frm.doc.overhead/100);
             frm.set_value('ovehead_value', overhead_value);
-            total_estimated_value = total_amount + overhead_value;
+            total_estimated_value = total_amount + overhead_value + total_material_cost;
             frm.set_value('total_estimated_value', total_estimated_value);
         }
     },
@@ -100,11 +104,15 @@ frappe.ui.form.on('Project Estimation', {
             total_amount = frm.doc.total_hours * frm.doc.hourly_rate;
             frm.set_value('total_amount', total_amount);
         }
+        let total_material_cost = 0;
+        frm.doc.items.forEach(item => {
+            total_material_cost += item.amount;
+        })
         if(frm.doc.overhead>0){
            // overhead is a percentage of total amount
             overhead_value = total_amount * (frm.doc.overhead/100);
             frm.set_value('ovehead_value', overhead_value);
-            total_estimated_value = total_amount + overhead_value;
+            total_estimated_value = total_amount + overhead_value + total_material_cost;
             frm.set_value('total_estimated_value', total_estimated_value);
         }
     }
