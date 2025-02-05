@@ -149,7 +149,7 @@
   {
    "fieldname": "ovehead_value",
    "fieldtype": "Currency",
-   "label": "Ovehead Value"
+   "label": "Overhead Value"
   },
   {
    "fieldname": "total_estimated_value",

@@ -42,39 +42,46 @@ frappe.ui.form.on('Project Estimation', {
     refresh: function(frm) {   
         let total_hours = 0;
         let total_material_cost = 0;
-        frm.doc.items.forEach(item => {
-            total_hours += item.total_man_power_hours;
-            total_material_cost += item.amount;
-        })
+    
+        if (frm.doc.items && frm.doc.items.length > 0) {
+            frm.doc.items.forEach(item => {
+                total_hours += item.total_man_power_hours || 0;
+                total_material_cost += item.amount || 0;
+            });
+        }
+    
         frm.set_value('total_hours', total_hours);
         frm.set_value('total_material_cost', total_material_cost);
-
+    
         let total_amount = 0;
-        if(frm.doc.hourly_rate>0){
-            total_amount = frm.doc.total_hours  * frm.doc.hourly_rate;
+        if (frm.doc.hourly_rate > 0) {
+            total_amount = total_hours * frm.doc.hourly_rate;
             frm.set_value('total_amount', total_amount);
         }
-        if(frm.doc.overhead > 0){
-           // overhead is a percentage of total amount
-            overhead_value = total_amount * (frm.doc.overhead/100);
+    
+        if (frm.doc.overhead > 0) {
+            let overhead_value = total_amount * (frm.doc.overhead / 100);
             frm.set_value('ovehead_value', overhead_value);
-            total_estimated_value = total_amount + overhead_value + total_material_cost;
+            let total_estimated_value = total_amount + overhead_value + total_material_cost;
             frm.set_value('total_estimated_value', total_estimated_value);
         }
-        frm.doc.items.forEach(item => {
-            frappe.model.set_value(item.doctype, item.name, 'total_hourly_rate', frm.doc.hourly_rate); // Share in percentage
-            frappe.model.set_value(item.doctype, item.name, 'total_amount', frm.doc.hourly_rate * item.total_man_power_hours);
-            if (frm.doc.project_start_date && frm.doc.project_end_date) {
-                const total_days = frappe.datetime.get_day_diff(frm.doc.project_end_date, frm.doc.project_start_date) + 1;
-                if (total_days > 0) {
-                    const per_day_est_hours = (item.total_man_power_hours || 0) / total_days;
-                    frappe.model.set_value(item.doctype, item.name, 'per_day_est_hours', per_day_est_hours);
-                } else {
-                    frappe.msgprint(__('Project Start Date and End Date must define a valid range.'));
+    
+        if (frm.doc.items && frm.doc.items.length > 0) {
+            frm.doc.items.forEach(item => {
+                frappe.model.set_value(item.doctype, item.name, 'total_hourly_rate', frm.doc.hourly_rate);
+                frappe.model.set_value(item.doctype, item.name, 'total_amount', frm.doc.hourly_rate * item.total_man_power_hours);
+    
+                if (frm.doc.project_start_date && frm.doc.project_end_date) {
+                    const total_days = frappe.datetime.get_day_diff(frm.doc.project_end_date, frm.doc.project_start_date) + 1;
+                    if (total_days > 0) {
+                        const per_day_est_hours = (item.total_man_power_hours || 0) / total_days;
+                        frappe.model.set_value(item.doctype, item.name, 'per_day_est_hours', per_day_est_hours);
+                    } else {
+                        frappe.msgprint(__('Project Start Date and End Date must define a valid range.'));
+                    }
                 }
-            }
-        });
-
+            });
+        }
     },
     total_amount: function(frm) {
         
