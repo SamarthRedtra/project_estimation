@@ -48,44 +48,77 @@ frappe.ui.form.on('Project Estimation', {
                 total_hours += item.total_man_power_hours || 0;
                 total_material_cost += item.amount || 0;
             });
+            console.log("inside items")
         }
     
-        frm.set_value('total_hours', total_hours);
-        frm.set_value('total_material_cost', total_material_cost);
+        if(frm.doc.total_hours !== total_hours) {
+            frm.set_value('total_hours', total_hours);
+            console.log(total_hours,frm.doc.total_hours !== total_hours)
+        }
+        if(frm.doc.total_material_cost !== total_material_cost) {
+            frm.set_value('total_material_cost', total_material_cost);
+            console.log((frm.doc.total_material_cost !== total_material_cost),total_material_cost)
+        }
     
         let total_amount = 0;
         if (frm.doc.hourly_rate > 0) {
             total_amount = total_hours * frm.doc.hourly_rate;
-            frm.set_value('total_amount', total_amount);
+            if(total_amount !== frm.doc.total_amount){  
+                frm.set_value('total_amount', total_amount);
+                console.log("inside hourly",total_amount !== frm.doc.total_amount)
+            }
+           
         }
     
         if (frm.doc.overhead > 0) {
             let overhead_value = total_amount * (frm.doc.overhead / 100);
-            frm.set_value('ovehead_value', overhead_value);
+            if (frm.doc.ovehead_value !== overhead_value)
+            {
+                frm.set_value('ovehead_value', overhead_value);
+                console.log("inside overhead2",frm.doc.ovehead_value !== overhead_value)
+            }
+
             let total_estimated_value = total_amount + overhead_value + total_material_cost;
-            frm.set_value('total_estimated_value', total_estimated_value);
+            if(total_estimated_value !== frm.doc.total_estimated_value){
+                console.log(total_estimated_value !== frm.doc.total_estimated_value,total_estimated_value, frm.doc.total_estimated_value)
+                frm.set_value('total_estimated_value', total_estimated_value);
+                console.log("inside overhea1d",total_estimated_value !== frm.doc.total_estimated_value,total_estimated_value,frm.doc.total_estimated_value)
+            }
+           
+            console.log("inside overhead")
         }
     
         if (frm.doc.items && frm.doc.items.length > 0) {
             frm.doc.items.forEach(item => {
-                frappe.model.set_value(item.doctype, item.name, 'total_hourly_rate', frm.doc.hourly_rate);
-                frappe.model.set_value(item.doctype, item.name, 'total_amount', frm.doc.hourly_rate * item.total_man_power_hours);
+                if(item.total_hourly_rate !== frm.doc.hourly_rate){
+                    frappe.model.set_value(item.doctype, item.name, 'total_hourly_rate', frm.doc.hourly_rate);
+                }
+                if(item.total_amount !== frm.doc.hourly_rate * item.total_man_power_hours){
+                   frappe.model.set_value(item.doctype, item.name, 'total_amount', frm.doc.hourly_rate * item.total_man_power_hours);
+                }
     
                 if (frm.doc.project_start_date && frm.doc.project_end_date) {
                     const total_days = frappe.datetime.get_day_diff(frm.doc.project_end_date, frm.doc.project_start_date) + 1;
                     if (total_days > 0) {
                         const per_day_est_hours = (item.total_man_power_hours || 0) / total_days;
-                        frappe.model.set_value(item.doctype, item.name, 'per_day_est_hours', per_day_est_hours);
+                        if(per_day_est_hours !== item.per_day_est_hours){
+                            frappe.model.set_value(item.doctype, item.name, 'per_day_est_hours', per_day_est_hours);
+                        }
                     } else {
                         frappe.msgprint(__('Project Start Date and End Date must define a valid range.'));
                     }
                 }
             });
+            console.log("inside items2")
+            
         }
+       
     },
     total_amount: function(frm) {
-        
-        frm.set_value('total_labour_cost', frm.doc.total_amount);
+        if( frm.doc.total_amount !== frm.doc.total_labour_cost){
+            frm.set_value('total_labour_cost', frm.doc.total_amount);
+        }
+       
     },
     hourly_rate: function(frm) {
         let total_amount = 0
