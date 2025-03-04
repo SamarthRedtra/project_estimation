@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:PR-EST-{customer}-####",
+ "autoname": "format:PR-EST-{customer}-{####}",
  "creation": "2024-12-14 01:44:58.764305",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -9,26 +9,28 @@
   "section_break_yc3b",
   "title",
   "customer",
-  "project",
   "amended_from",
   "column_break_path",
   "company",
-  "project_start_date",
-  "project_end_date",
   "price_list",
+  "estimated_duration",
   "project_details_section",
   "project_and_account_brief",
   "estimated_items_section",
   "items",
   "costing_section",
   "total_hours",
-  "total_amount",
-  "total_labour_cost",
-  "total_material_cost",
-  "column_break_fhwz",
-  "hourly_rate",
   "overhead",
   "ovehead_value",
+  "column_break_ofsk",
+  "total_material_cost_cost",
+  "total_labour_cost_cost",
+  "total_amount_cost",
+  "total_estimated_amount_cost",
+  "column_break_fhwz",
+  "total_material_cost",
+  "total_labour_cost",
+  "total_amount",
   "total_estimated_value"
  ],
  "fields": [
@@ -54,30 +56,8 @@
    "reqd": 1
   },
   {
-   "fieldname": "project",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Project",
-   "options": "Project",
-   "reqd": 1
-  },
-  {
    "fieldname": "column_break_path",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "project_start_date",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "Project Start Date",
-   "reqd": 1
-  },
-  {
-   "fieldname": "project_end_date",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "Project End Date",
-   "reqd": 1
   },
   {
    "fieldname": "customer",
@@ -126,20 +106,15 @@
    "reqd": 1
   },
   {
+   "description": "Excluding Overheads",
    "fieldname": "total_amount",
    "fieldtype": "Currency",
-   "label": "Total Amount",
+   "label": "Total Amount (Billing)",
    "read_only": 1
   },
   {
    "fieldname": "column_break_fhwz",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "hourly_rate",
-   "fieldtype": "Percent",
-   "label": "Hourly Rate",
-   "reqd": 1
   },
   {
    "fieldname": "overhead",
@@ -154,7 +129,7 @@
   {
    "fieldname": "total_estimated_value",
    "fieldtype": "Currency",
-   "label": "Total Estimated Value"
+   "label": "Total Estimated Amount (Billing)"
   },
   {
    "fieldname": "price_list",
@@ -166,20 +141,65 @@
   {
    "fieldname": "total_labour_cost",
    "fieldtype": "Currency",
-   "label": "Total Labour Cost",
+   "label": "Total Labour Cost (Billing)",
    "read_only": 1
   },
   {
    "fieldname": "total_material_cost",
    "fieldtype": "Currency",
-   "label": "Total Material Cost",
+   "label": "Total Material Cost (Billing)",
    "read_only": 1
+  },
+  {
+   "description": "Ex. 30 days, 60 days, 180 days",
+   "fieldname": "estimated_duration",
+   "fieldtype": "Int",
+   "label": "Estimated Duration",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_ofsk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_material_cost_cost",
+   "fieldtype": "Currency",
+   "label": "Total Material Cost (Cost)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_labour_cost_cost",
+   "fieldtype": "Currency",
+   "label": "Total Labour Cost (Cost)",
+   "read_only": 1
+  },
+  {
+   "description": "Excluding Overheads",
+   "fieldname": "total_amount_cost",
+   "fieldtype": "Currency",
+   "label": "Total Amount (Cost)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_estimated_amount_cost",
+   "fieldtype": "Currency",
+   "label": "Total Estimated Amount (Cost)"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
- "modified": "2024-12-14 11:41:38.823651",
+ "links": [
+  {
+   "link_doctype": "Bill of Quantity",
+   "link_fieldname": "project_estimation"
+  },
+  {
+   "custom": 1,
+   "link_doctype": "Project",
+   "link_fieldname": "custom_project_estimation"
+  }
+ ],
+ "modified": "2025-03-04 07:19:13.643982",
  "modified_by": "Administrator",
  "module": "Redtra Project Estimation",
  "name": "Project Estimation",
@@ -187,6 +207,7 @@
  "owner": "Administrator",
  "permissions": [
   {
+   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -195,9 +216,58 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "select": 1,
    "share": 1,
    "submit": 1,
    "write": 1
+  },
+  {
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Projects Manager",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Projects User",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Supplier",
+   "select": 1,
+   "share": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Customer",
+   "select": 1,
+   "share": 1
   }
  ],
  "sort_field": "creation",

@@ -132,9 +132,11 @@ app_license = "mit"
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	"Purchase Order": "project_estimation.overrides.purchase_order.CustomPurchaseOrder",
+    "Purchase Invoice": "project_estimation.overrides.purchase_invoice.CustomPurchaseInvoice",
+    "Journal Entry": "project_estimation.overrides.expense.CustomJournalEntry",
+}
 
 # Document Events
 # ---------------
@@ -244,4 +246,17 @@ app_license = "mit"
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
+
+import project_estimation.overrides.expense
+
+fixtures = [ {
+    "doctype": "Workspace",
+    "filters": [
+        [
+            "name",
+            "=",
+            "Projects"
+        ]
+    ]
+}  ]
 
