@@ -4,7 +4,8 @@ from frappe import _
 def execute(filters=None):
     columns = get_columns()
     data = get_data(filters)
-    return columns, data
+    chart = get_chart(filters)
+    return columns, data, None, chart
 
 def get_columns():
     return [
@@ -134,6 +135,50 @@ def get_data(filters):
     })
 
     return data
+
+
+def get_chart(filters):
+    # Extract project from filters
+    project = filters.get("project")
+    
+    # Fetch estimates and actuals (assuming these functions exist in your script)
+    estimates = get_estimates(project) or {"material": {}, "labour": {}, "overheads": 0}
+    actuals = get_actuals(project) or {"material": {}, "labour": {}, "overheads": 0}
+    
+    # Calculate totals for each category
+    material_estimated = sum(item.get("amount", 0) for item in estimates.get("material", {}).values())
+    material_actual = sum(item.get("amount", 0) for item in actuals.get("material", {}).values())
+    
+    labour_estimated = sum(item.get("total", 0) for item in estimates.get("labour", {}).values())
+    labour_actual = sum(item.get("total", 0) for item in actuals.get("labour", {}).values())
+    
+    overheads_estimated = estimates.get("overheads", 0)
+    overheads_actual = actuals.get("overheads", 0)
+    
+    # Define the chart configuration
+    chart = {
+        "title": "Estimated vs Actual Costs",
+        "data": {
+            "labels": ["Material Costs", "Labour Costs", "Overheads"],
+            "datasets": [
+                {
+                    "name": "Estimated",
+                    "values": [material_estimated, labour_estimated, overheads_estimated]
+                },
+                {
+                    "name": "Actual",
+                    "values": [material_actual, labour_actual, overheads_actual]
+                }
+            ]
+        },
+        "type": "bar",
+        "height": 300,
+        "barOptions": {
+            "stacked": True  # Enables stacking
+        },
+        "colors": ["#7cd6fd", "#5e64ff"]  # Colors for Estimated and Actual
+    }
+    return chart
 
 def add_items(estimates, actuals, qty_field, rate_field, amount_field):
     child_rows = []
