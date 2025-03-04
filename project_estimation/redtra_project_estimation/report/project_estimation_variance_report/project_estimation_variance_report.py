@@ -2,12 +2,14 @@ import frappe
 from frappe import _
 
 def execute(filters=None):
+    """Main function to execute the report."""
     columns = get_columns()
-    data = get_data(filters)
-    chart = get_chart(filters)
+    data, category_totals = get_data(filters)
+    chart = get_chart(category_totals)
     return columns, data, None, chart
 
 def get_columns():
+    """Define the columns for the report table."""
     return [
         {"fieldname": "category", "label": _("Item"), "fieldtype": "Data", "width": 300},
         {"fieldname": "estimated_qty", "label": _("Est. Qty/Hrs"), "fieldtype": "Float", "width": 120},
@@ -21,49 +23,79 @@ def get_columns():
         {"fieldname": "remarks", "label": _("Remarks"), "fieldtype": "Small Text", "width": 500}
     ]
 
-
 def get_data(filters):
+    """Fetch and organize data for the report."""
     project = filters.get("project")
-    data = []
-    
-    # Fetch estimates and actuals
     estimates = get_estimates(project) or {"material": {}, "labour": {}, "overheads": 0}
     actuals = get_actuals(project) or {"material": {}, "labour": {}, "overheads": 0}
-
-    # Material Costs
-    material_child_rows, material_total = add_items(
-        estimates.get("material", {}),
-        actuals.get("material", {}),
-        "quantity",
-        "rate",
-        "amount"
-    )
-
-    # Labour Costs
-    labour_child_rows, labour_total = add_items(
-        estimates.get("labour", {}),
-        actuals.get("labour", {}),
-        "hours",
-        "rate",
-        "total"
-    )
-
-    # Overheads
-    overheads = {
-        "estimated_amount": estimates.get("overheads", 0),
-        "actual_amount": actuals.get("overheads", 0),
-        "amount_variance": estimates.get("overheads", 0) - actuals.get("overheads", 0)
-    }
-
-    # Total Project Cost
+    data = []
+    
+    # Define categories and their fields
+    categories = [
+        {"name": "material", "qty_field": "quantity", "rate_field": "rate", "amount_field": "amount", "is_overheads": False},
+        {"name": "labour", "qty_field": "hours", "rate_field": "rate", "amount_field": "total", "is_overheads": False},
+        {"name": "overheads", "is_overheads": True}
+    ]
+    
+    category_totals = {}
+    for category in categories:
+        if category["is_overheads"]:
+            # Handle Overheads (no quantities, only amounts)
+            totals = {
+                "estimated_amount": estimates.get("overheads", 0),
+                "actual_amount": actuals.get("overheads", 0),
+                "amount_variance": estimates.get("overheads", 0) - actuals.get("overheads", 0)
+            }
+            data.append({
+                "category": "Overheads",
+                "estimated_amount": totals["estimated_amount"],
+                "actual_amount": totals["actual_amount"],
+                "amount_variance": totals["amount_variance"],
+                "variance_percent": calculate_percent(totals["amount_variance"], totals["estimated_amount"]),
+                "remarks": "Administrative and other costs",
+                "indent": 1,
+                "parent": "<b>Total Project Cost</b>",
+                "is_group": 0,
+                "estimated_qty": 0,
+                "actual_qty": 0,
+                "qty_variance": 0
+            })
+            category_totals["overheads"] = totals
+        else:
+            # Handle Material and Labour with sub-items
+            child_rows, totals = add_items(
+                estimates.get(category["name"], {}),
+                actuals.get(category["name"], {}),
+                category["qty_field"],
+                category["rate_field"],
+                category["amount_field"]
+            )
+            category_totals[category["name"]] = totals
+            data.append({
+                "category": f"<b>{category['name'].capitalize()} Costs</b>",
+                "estimated_qty": totals["estimated_qty"],
+                "actual_qty": totals["actual_qty"],
+                "qty_variance": totals["estimated_qty"] - totals["actual_qty"],
+                "estimated_amount": totals["estimated_amount"],
+                "actual_amount": totals["actual_amount"],
+                "amount_variance": totals["amount_variance"],
+                "variance_percent": calculate_percent(totals["amount_variance"], totals["estimated_amount"]),
+                "indent": 1,
+                "parent": "<b>Total Project Cost</b>",
+                "is_group": 1
+            })
+            for row in child_rows:
+                row["indent"] = 2
+                row["parent"] = f"<b>{category['name'].capitalize()} Costs</b>"
+                data.append(row)
+    
+    # Calculate and add Total Project Cost
     total_project_cost = {
-        "estimated_amount": material_total["estimated_amount"] + labour_total["estimated_amount"] + overheads["estimated_amount"],
-        "actual_amount": material_total["actual_amount"] + labour_total["actual_amount"] + overheads["actual_amount"],
-        "amount_variance": material_total["amount_variance"] + labour_total["amount_variance"] + overheads["amount_variance"]
+        "estimated_amount": sum(t["estimated_amount"] for t in category_totals.values()),
+        "actual_amount": sum(t["actual_amount"] for t in category_totals.values()),
+        "amount_variance": sum(t["amount_variance"] for t in category_totals.values())
     }
-
-    # Append Total Project Cost (Root)
-    data.append({
+    data.insert(0, {
         "category": "<b>Total Project Cost</b>",
         "estimated_amount": total_project_cost["estimated_amount"],
         "actual_amount": total_project_cost["actual_amount"],
@@ -71,91 +103,15 @@ def get_data(filters):
         "variance_percent": calculate_percent(total_project_cost["amount_variance"], total_project_cost["estimated_amount"]),
         "indent": 0,
         "is_group": 1,
-        "estimated_qty": 0,  # Quantities not summed due to different units
-        "actual_qty": 0,
-        "qty_variance": 0
-    })
-
-    # Append Material Costs (Parent)
-    data.append({
-        "category": "<b>Material Costs</b>",
-        "estimated_qty": material_total["estimated_qty"],
-        "actual_qty": material_total["actual_qty"],
-        "qty_variance": material_total["estimated_qty"] - material_total["actual_qty"],
-        "estimated_amount": material_total["estimated_amount"],
-        "actual_amount": material_total["actual_amount"],
-        "amount_variance": material_total["amount_variance"],
-        "variance_percent": calculate_percent(material_total["amount_variance"], material_total["estimated_amount"]),
-        "indent": 1,
-        "parent": "<b>Total Project Cost</b>",
-        "is_group": 1
-    })
-
-    # Append Material Child Rows
-    for row in material_child_rows:
-        row["indent"] = 2
-        row["parent"] = "<b>Material Costs</b>"
-        data.append(row)
-
-    # Append Labour Costs (Parent)
-    data.append({
-        "category": "<b>Labour Costs</b>",
-        "estimated_qty": labour_total["estimated_qty"],
-        "actual_qty": labour_total["actual_qty"],
-        "qty_variance": labour_total["estimated_qty"] - labour_total["actual_qty"],
-        "estimated_amount": labour_total["estimated_amount"],
-        "actual_amount": labour_total["actual_amount"],
-        "amount_variance": labour_total["amount_variance"],
-        "variance_percent": calculate_percent(labour_total["amount_variance"], labour_total["estimated_amount"]),
-        "indent": 1,
-        "parent": "<b>Total Project Cost</b>",
-        "is_group": 1
-    })
-
-    # Append Labour Child Rows
-    for row in labour_child_rows:
-        row["indent"] = 2
-        row["parent"] = "<b>Labour Costs</b>"
-        data.append(row)
-
-    # Append Overheads
-    data.append({
-        "category": "Overheads",
-        "estimated_amount": overheads["estimated_amount"],
-        "actual_amount": overheads["actual_amount"],
-        "amount_variance": overheads["amount_variance"],
-        "variance_percent": calculate_percent(overheads["amount_variance"], overheads["estimated_amount"]),
-        "remarks": "Administrative and other costs",
-        "indent": 1,
-        "parent": "<b>Total Project Cost</b>",
-        "is_group": 0,
         "estimated_qty": 0,
         "actual_qty": 0,
         "qty_variance": 0
     })
+    
+    return data, category_totals
 
-    return data
-
-
-def get_chart(filters):
-    # Extract project from filters
-    project = filters.get("project")
-    
-    # Fetch estimates and actuals (assuming these functions exist in your script)
-    estimates = get_estimates(project) or {"material": {}, "labour": {}, "overheads": 0}
-    actuals = get_actuals(project) or {"material": {}, "labour": {}, "overheads": 0}
-    
-    # Calculate totals for each category
-    material_estimated = sum(item.get("amount", 0) for item in estimates.get("material", {}).values())
-    material_actual = sum(item.get("amount", 0) for item in actuals.get("material", {}).values())
-    
-    labour_estimated = sum(item.get("total", 0) for item in estimates.get("labour", {}).values())
-    labour_actual = sum(item.get("total", 0) for item in actuals.get("labour", {}).values())
-    
-    overheads_estimated = estimates.get("overheads", 0)
-    overheads_actual = actuals.get("overheads", 0)
-    
-    # Define the chart configuration
+def get_chart(category_totals):
+    """Generate a stacked bar chart for estimated vs actual costs."""
     chart = {
         "title": "Estimated vs Actual Costs",
         "data": {
@@ -163,32 +119,33 @@ def get_chart(filters):
             "datasets": [
                 {
                     "name": "Estimated",
-                    "values": [material_estimated, labour_estimated, overheads_estimated]
+                    "values": [
+                        category_totals["material"]["estimated_amount"],
+                        category_totals["labour"]["estimated_amount"],
+                        category_totals["overheads"]["estimated_amount"]
+                    ]
                 },
                 {
                     "name": "Actual",
-                    "values": [material_actual, labour_actual, overheads_actual]
+                    "values": [
+                        category_totals["material"]["actual_amount"],
+                        category_totals["labour"]["actual_amount"],
+                        category_totals["overheads"]["actual_amount"]
+                    ]
                 }
             ]
         },
         "type": "bar",
         "height": 300,
-        "barOptions": {
-            "stacked": True  # Enables stacking
-        },
-        "colors": ["#7cd6fd", "#5e64ff"]  # Colors for Estimated and Actual
+        "barOptions": {"stacked": True},
+        "colors": ["#7cd6fd", "#5e64ff"]
     }
     return chart
 
 def add_items(estimates, actuals, qty_field, rate_field, amount_field):
+    """Add sub-items for Material or Labour categories and calculate totals."""
     child_rows = []
-    total = {
-        "estimated_qty": 0,
-        "actual_qty": 0,
-        "estimated_amount": 0,
-        "actual_amount": 0,
-        "amount_variance": 0
-    }
+    total = {"estimated_qty": 0, "actual_qty": 0, "estimated_amount": 0, "actual_amount": 0, "amount_variance": 0}
     for key in set(estimates.keys()).union(actuals.keys()):
         est = estimates.get(key, {})
         act = actuals.get(key, {})
@@ -200,7 +157,7 @@ def add_items(estimates, actuals, qty_field, rate_field, amount_field):
         act_amount = act.get(amount_field, act_qty * act_rate)
         amount_variance = est_amount - act_amount
         
-        child_row = {
+        child_rows.append({
             "category": key,
             "estimated_qty": est_qty,
             "actual_qty": act_qty,
@@ -211,8 +168,7 @@ def add_items(estimates, actuals, qty_field, rate_field, amount_field):
             "amount_variance": amount_variance,
             "variance_percent": calculate_percent(amount_variance, est_amount),
             "remarks": f"Est: {est_qty} {qty_field} @ {est_rate} | Actual: {act_qty} @ {act_rate}"
-        }
-        child_rows.append(child_row)
+        })
         
         total["estimated_qty"] += est_qty
         total["actual_qty"] += act_qty
@@ -221,42 +177,29 @@ def add_items(estimates, actuals, qty_field, rate_field, amount_field):
         total["amount_variance"] += amount_variance
     
     return child_rows, total
-def format_total_row(title, totals, indent_level):
-    return {
-        "category": f"<b>{title}</b>",
-        **totals,
-        "variance_percent": calculate_percent(totals["amount_variance"], totals["estimated_amount"]),
-        "indent": indent_level
-    }
 
 def calculate_percent(variance, base):
+    """Calculate percentage variance safely."""
     return (variance / base * 100) if base != 0 else 0
 
 def get_estimates(project):
+    """Fetch estimated costs from Project Estimation document."""
     estimation_code = frappe.db.get_value('Project', project, 'custom_project_estimation') or \
                       frappe.db.get_value('Bill of Quantity', {'project': project}, 'project_estimation')
-
     if not estimation_code:
         return None
-
     estimation = frappe.get_doc("Project Estimation", estimation_code)
-
     return {
-        "material": {item.item: {
-            "quantity": item.quantity,
-            "rate": item.rate,
-            "amount": item.amount
-        } for item in estimation.items if item.item},
-        "labour": {item.activity_type: {
-            "hours": item.total_man_power_hours,
-            "rate": item.billing_rate,
-            "total": item.total_labour_cost_billing
-        } for item in estimation.items if item.activity_type},
-        "overheads": estimation.ovehead_value,
-        "total": estimation.total_estimated_value
+        "material": {item.item: {"quantity": item.quantity, "rate": item.rate, "amount": item.amount}
+                     for item in estimation.items if item.item},
+        "labour": {item.activity_type: {"hours": item.total_man_power_hours, "rate": item.billing_rate,
+                                        "total": item.total_labour_cost_billing}
+                   for item in estimation.items if item.activity_type},
+        "overheads": estimation.ovehead_value
     }
 
 def get_actuals(project):
+    """Fetch actual costs from various transactions."""
     material_items = frappe.db.sql("""
         SELECT item_code, SUM(qty) as qty, AVG(rate) as rate, SUM(amount) as total
         FROM `tabPurchase Invoice Item`
@@ -279,11 +222,9 @@ def get_actuals(project):
         WHERE project = %s AND docstatus = 1
     """, (project, project), as_list=True)
 
-    total_overheads = sum([row[0] for row in overheads])
-
+    total_overheads = sum(row[0] for row in overheads)
     return {
         "material": {item.item_code: item for item in material_items},
         "labour": {item.activity_type: item for item in labour_items},
-        "overheads": total_overheads,
-        "total": sum(item.total for item in material_items) + sum(item.total for item in labour_items)
+        "overheads": total_overheads
     }
