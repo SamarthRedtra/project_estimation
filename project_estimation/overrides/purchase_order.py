@@ -5,9 +5,7 @@ from erpnext.buying.doctype.purchase_order.purchase_order import PurchaseOrder
 
 
 
-class CustomPurchaseOrder(PurchaseOrder):
-    def on_submit(self):
-        frappe.throw("hello")    
+class CustomPurchaseOrder(PurchaseOrder):  
     def validate(self):
         super().validate()
         is_project_mand = frappe.get_doc('Project Estimation Setting').get('allow_multiple_purchase_price')
