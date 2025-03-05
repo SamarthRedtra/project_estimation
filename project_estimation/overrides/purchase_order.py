@@ -12,11 +12,12 @@ class CustomPurchaseOrder(PurchaseOrder):
         super().validate()
         is_project_mand = frappe.get_doc('Project Estimation Setting').get('allow_multiple_purchase_price')
         if is_project_mand:
-            if not self.project:
-                frappe.throw(_("Project is mandatory"))
+            for i in self.items:
+                if not i.get('project'):
+                    frappe.throw(_("Project is mandatory Please select Project at row {0}".format(i.idx)))
         
             for item in self.items:
-                create_price_list(item, self.supplier, self.project,self.buying_price_list)  
+                create_price_list(item, self.supplier, item.project,self.buying_price_list)  
                 
             frappe.db.commit()           
            

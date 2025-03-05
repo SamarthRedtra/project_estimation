@@ -136,6 +136,7 @@ override_doctype_class = {
 	"Purchase Order": "project_estimation.overrides.purchase_order.CustomPurchaseOrder",
     "Purchase Invoice": "project_estimation.overrides.purchase_invoice.CustomPurchaseInvoice",
     "Journal Entry": "project_estimation.overrides.expense.CustomJournalEntry",
+    "Item Price":"project_estimation.overrides.item_price.CustomItemPrice"
 }
 
 # Document Events
