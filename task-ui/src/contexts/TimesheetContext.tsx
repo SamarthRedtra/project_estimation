@@ -3,6 +3,12 @@ import { Project, Task, Activity, TimeEntry, Timesheet, fetchProjects, fetchActi
 import { getTodayDate, formatDecimalHours } from '@/lib/timeUtils';
 import { toast } from 'sonner';
 
+// Add this import at the top
+import { useFrappeAuth, useFrappeGetDocList } from 'frappe-react-sdk';
+
+// Add this import at the top
+import { Loader } from '@/components/Loader'; // Assuming you have a Loader component
+
 // Context types
 interface TimesheetContextType {
   projects: Project[];
@@ -25,6 +31,13 @@ interface TimesheetContextType {
   addEntry: (entry: TimeEntry) => void;
   removeEntry: (entryId: string) => void;
   submitTimesheet: () => void;
+  isAuthenticated: boolean;
+  currentUser: string | null;
+  isLoadingAuth: boolean;
+  isAppLoading: boolean;
+
+  login: (username: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 // Create context
@@ -261,7 +274,43 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
     toast.success('Timesheet submitted successfully');
   };
 
-  // Context value
+  // Add Frappe auth state
+  const { login: frappeLogin, logout: frappeLogout, currentUser, isLoading: isLoadingAuth } = useFrappeAuth();
+
+  // Add auth methods
+  const login = async (username: string, password: string) => {
+    setIsLoading(true);
+    try {
+      await frappeLogin({
+        username,
+        password
+      });
+      
+      toast.success('Login successful');
+    } catch (error) {
+      toast.error('Login failed. Please check your credentials.');
+      throw error;
+    }
+    finally {
+      setIsLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    setIsLoading(true);
+    try {
+      await frappeLogout();
+      toast.success('Logged out successfully');
+    } catch (error) {
+      toast.error('Logout failed. Please try again.');
+      throw error;
+    }
+    finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Update context value
   const contextValue: TimesheetContextType = {
     projects,
     activities,
@@ -280,12 +329,18 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
     discardTimer,
     addEntry,
     removeEntry,
-    submitTimesheet
+    submitTimesheet,
+    isAuthenticated: !!currentUser,
+    currentUser: currentUser || null,
+    isLoadingAuth,
+    login,
+    logout,
+    isAppLoading: isLoading || isLoadingAuth
   };
 
   return (
-    <TimesheetContext.Provider value={contextValue}>
-      {children}
+    <TimesheetContext.Provider value={{ ...contextValue, isLoading }}>
+      {isLoading ? <Loader /> : children}
     </TimesheetContext.Provider>
   );
 };

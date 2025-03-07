@@ -21,6 +21,9 @@ export interface Activity {
 export interface TimeEntry {
   id: string;
   projectId: string;
+  projectName: string;
+  taskName: string;
+  activityName: string;
   taskId: string;
   activityId: string;
   date: string;
@@ -88,8 +91,11 @@ export const timesheets: Timesheet[] = [
       {
         id: 'entry-1',
         projectId: 'proj-1',
+        projectName: 'Website Redesign',
         taskId: 'task-1-1',
+        taskName: 'Design UI Components',
         activityId: 'act-2',
+        activityName: 'Development',
         date: '2025-03-03',
         startTime: '09:00:00',
         endTime: '12:00:00',
@@ -99,8 +105,11 @@ export const timesheets: Timesheet[] = [
       {
         id: 'entry-2',
         projectId: 'proj-2',
+        projectName: 'Redtra',
         taskId: 'task-2-1',
+        taskName: 'API Integration',
         activityId: 'act-3',
+        activityName: 'Testing',
         date: '2025-03-03',
         startTime: '13:00:00',
         endTime: '17:00:00',
@@ -119,8 +128,11 @@ export const timesheets: Timesheet[] = [
       {
         id: 'entry-3',
         projectId: 'proj-3',
+        projectName: 'Mobile App Development',
         taskId: 'task-3-1',
+        taskName: 'Authentication Flow',
         activityId: 'act-1',
+        activityName: 'Planning',
         date: '2025-03-04',
         startTime: '08:30:00',
         endTime: '11:30:00',
@@ -130,8 +142,11 @@ export const timesheets: Timesheet[] = [
       {
         id: 'entry-4',
         projectId: 'proj-1',
+        projectName: 'Website Redesign',
         taskId: 'task-1-3',
+        taskName: 'Browser Testing',
         activityId: 'act-3',
+        activityName: 'Testing',
         date: '2025-03-04',
         startTime: '12:30:00',
         endTime: '16:30:00',
@@ -141,8 +156,11 @@ export const timesheets: Timesheet[] = [
       {
         id: 'entry-5',
         projectId: 'proj-2',
+        projectName: 'Redtra',
         taskId: 'task-2-2',
+        taskName: 'Database Schema Design',
         activityId: 'act-2',
+        activityName: 'Development',
         date: '2025-03-04',
         startTime: '16:45:00',
         endTime: '19:45:00',

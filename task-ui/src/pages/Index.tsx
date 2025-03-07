@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import Timer from '@/components/Timer';
 import ProjectList from '@/components/ProjectList';
@@ -9,8 +9,40 @@ import { TimesheetProvider } from '@/contexts/TimesheetContext';
 import DailyTimer from '@/components/DailyTimer';
 import CompletedActivities from '@/components/CompletedActivities';
 import SubmitTimesheet from '@/components/SubmitTimesheet';
+import { useFrappeGetCall } from 'frappe-react-sdk';
+import { Loader } from '@/components/Loader';
+import {  useUser } from '@/contexts/UserContext';
 
 const Index = () => {
+  const { data, error, isLoading } = useFrappeGetCall(
+    'project_estimation.api.get_user_info'
+  );
+
+  useEffect(() => {
+    if (data?.message?.user) {
+      const userInfo = data.message.user;
+      console.log(userInfo);
+      const user = {
+        name: userInfo[1],
+        email: userInfo[2],
+        avatarUrl: userInfo[4],
+        company:userInfo[6]? userInfo[6] : '',
+        phone:userInfo[5]? userInfo[5] : '',
+      };
+      localStorage.setItem('user', JSON.stringify(user));
+
+    }
+  }, [data]);
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  if (error) {
+    console.error(error);
+    return <div>Error loading user information</div>;
+  }
+
   return (
     <TimesheetProvider>
       <div className="min-h-screen bg-background flex flex-col animate-in">

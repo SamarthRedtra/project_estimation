@@ -24,11 +24,27 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUser } from '@/contexts/UserContext';
+import { useFrappeAuth } from 'frappe-react-sdk';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useNavigate } from 'react-router-dom';
 
 export default function NavBar() {
   const { user } = useUser();
   const location = useLocation();
+  const navigate = useNavigate();
+  const {logout} = useFrappeAuth();
+
+  console.log(user,'99')
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      localStorage.removeItem('user');
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   const navigationItems = [
     { name: 'Home', path: '/', icon: House },
@@ -134,7 +150,7 @@ export default function NavBar() {
                   <span>Profile</span>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-red-600 cursor-pointer">
+              <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>

@@ -1,21 +1,37 @@
-import React from 'react';
+import React ,{useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '@/contexts/UserContext';
+import { Loader } from '@/components/Loader';
+import { useFrappeAuth } from 'frappe-react-sdk';
+import { Eye, EyeOff } from 'lucide-react';
+
+
 
 export default function Login() {
   const navigate = useNavigate();
-  const { setUser } = useUser();
+  const { login, isLoading } = useFrappeAuth();
 
-  const handleSignIn = () => {
-    const mockUser = {
-      name: 'John Doe',
-      email: 'john@example.com',
-      avatarUrl: null
-    };
-    
-    setUser(mockUser);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await login({
+        username: email,
+        password,
+      });
+      navigate("/");
+    } catch (error: any) {
+    }
+
     navigate('/');
   };
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -42,6 +58,8 @@ export default function Login() {
                   id="username"
                   name="username"
                   type="text"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                   placeholder="Enter your username"
@@ -53,15 +71,28 @@ export default function Login() {
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
               </label>
-              <div className="mt-1">
+              <div className="mt-1 relative">
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  value={password}
+                  type={showPassword ? 'text' : 'password'}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                   placeholder="Enter your password"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5 text-gray-400" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-400" />
+                  )}
+                </button>
               </div>
             </div>
 

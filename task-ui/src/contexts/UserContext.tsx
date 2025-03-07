@@ -4,6 +4,8 @@ interface User {
   name: string;
   email: string;
   avatarUrl: string | null;
+  phone : string;
+  company: string;
 }
 
 interface UserContextType {
@@ -14,10 +16,22 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? (Object.keys(JSON.parse(savedUser)).length == 0 ? null : JSON.parse(savedUser) ) : null;
+  });
+
+  const updateUser = (newUser: User | null) => {
+    setUser(newUser);
+    if (newUser) {
+      localStorage.setItem('user', JSON.stringify(newUser));
+    } else {
+      localStorage.removeItem('user');
+    }
+  };
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ user, setUser: updateUser }}>
       {children}
     </UserContext.Provider>
   );

@@ -2,14 +2,18 @@
 import React from 'react';
 import NavBar from '@/components/NavBar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings as SettingsIcon, BellRing, Shield, UserCircle } from 'lucide-react';
+import { Settings as SettingsIcon, BellRing, Shield, UserCircle, ChevronRight } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { TimesheetProvider } from '@/contexts/TimesheetContext';
 import DailyTimer from '@/components/DailyTimer';
+import { handleNavigate } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 const Settings = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-background flex flex-col animate-in">
       <NavBar />
@@ -27,7 +31,10 @@ const Settings = () => {
           
           <CardContent className="p-0">
             <div className="p-4 border-b">
-              <div className="flex items-center justify-between">
+              <div 
+                className="flex items-center justify-between cursor-pointer" 
+                onClick={() => navigate('/profile')}
+              >
                 <div className="space-y-0.5">
                   <div className="flex items-center">
                     <UserCircle size={16} className="mr-2 text-primary" />
@@ -38,7 +45,7 @@ const Settings = () => {
                   </p>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  Coming Soon
+                  <ChevronRight size={16} />
                 </div>
               </div>
             </div>
