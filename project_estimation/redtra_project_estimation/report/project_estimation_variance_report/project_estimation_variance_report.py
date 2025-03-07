@@ -201,7 +201,7 @@ def get_estimates(project):
 def get_actuals(project):
     """Fetch actual costs from various transactions."""
     material_items = frappe.db.sql("""
-        SELECT item_code, SUM(qty) as qty, AVG(rate) as rate, SUM(amount) as total
+        SELECT item_code, SUM(qty) as quantity, AVG(rate) as rate, SUM(amount) as amount
         FROM `tabPurchase Invoice Item`
         WHERE project = %s AND docstatus = 1
         GROUP BY item_code

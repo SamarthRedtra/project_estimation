@@ -6,6 +6,7 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "basic_details_tab",
   "section_break_yc3b",
   "title",
   "customer",
@@ -16,9 +17,15 @@
   "estimated_duration",
   "project_details_section",
   "project_and_account_brief",
+  "estimations_tab",
   "estimated_items_section",
+  "allow_line_wise_markup",
   "items",
+  "overheads_and_costing_tab",
+  "overheads_section",
+  "overheads",
   "costing_section",
+  "calculate",
   "total_hours",
   "overhead",
   "ovehead_value",
@@ -31,7 +38,9 @@
   "total_material_cost",
   "total_labour_cost",
   "total_amount",
-  "total_estimated_value"
+  "grand_markup",
+  "total_estimated_value",
+  "connections_tab"
  ],
  "fields": [
   {
@@ -103,6 +112,7 @@
    "fieldname": "total_hours",
    "fieldtype": "Float",
    "label": "Total Hours",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -119,17 +129,20 @@
   {
    "fieldname": "overhead",
    "fieldtype": "Percent",
-   "label": "Overhead(%)"
+   "label": "Overhead(%)",
+   "read_only": 1
   },
   {
    "fieldname": "ovehead_value",
    "fieldtype": "Currency",
-   "label": "Overhead Value"
+   "label": "Overhead Value",
+   "read_only": 1
   },
   {
    "fieldname": "total_estimated_value",
    "fieldtype": "Currency",
-   "label": "Total Estimated Amount (Billing)"
+   "label": "Total Estimated Amount (Billing)",
+   "read_only": 1
   },
   {
    "fieldname": "price_list",
@@ -183,7 +196,57 @@
   {
    "fieldname": "total_estimated_amount_cost",
    "fieldtype": "Currency",
-   "label": "Total Estimated Amount (Cost)"
+   "label": "Total Estimated Amount (Cost)",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_line_wise_markup",
+   "fieldtype": "Check",
+   "label": "Allow Line Wise Markup"
+  },
+  {
+   "depends_on": "eval:doc.allow_line_wise_markup == 0",
+   "fieldname": "grand_markup",
+   "fieldtype": "Percent",
+   "label": "Markup (%)"
+  },
+  {
+   "fieldname": "overheads_section",
+   "fieldtype": "Section Break",
+   "label": "Overheads"
+  },
+  {
+   "fieldname": "overheads",
+   "fieldtype": "Table",
+   "label": "Overheads",
+   "options": "Project Account"
+  },
+  {
+   "fieldname": "basic_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Basic Details"
+  },
+  {
+   "fieldname": "estimations_tab",
+   "fieldtype": "Tab Break",
+   "label": "Estimations"
+  },
+  {
+   "fieldname": "overheads_and_costing_tab",
+   "fieldtype": "Tab Break",
+   "label": "Overheads and Costing"
+  },
+  {
+   "fieldname": "calculate",
+   "fieldtype": "Button",
+   "label": "Calculate"
+  },
+  {
+   "fieldname": "connections_tab",
+   "fieldtype": "Tab Break",
+   "label": "Connections",
+   "show_dashboard": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -199,7 +262,7 @@
    "link_fieldname": "custom_project_estimation"
   }
  ],
- "modified": "2025-03-04 07:19:13.643982",
+ "modified": "2025-03-07 03:37:09.140053",
  "modified_by": "Administrator",
  "module": "Redtra Project Estimation",
  "name": "Project Estimation",

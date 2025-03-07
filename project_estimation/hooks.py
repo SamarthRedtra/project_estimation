@@ -136,7 +136,8 @@ override_doctype_class = {
 	"Purchase Order": "project_estimation.overrides.purchase_order.CustomPurchaseOrder",
     "Purchase Invoice": "project_estimation.overrides.purchase_invoice.CustomPurchaseInvoice",
     "Journal Entry": "project_estimation.overrides.expense.CustomJournalEntry",
-    "Item Price":"project_estimation.overrides.item_price.CustomItemPrice"
+    "Item Price":"project_estimation.overrides.item_price.CustomItemPrice",
+    "Material Request": "project_estimation.overrides.material_request.CustomMaterialRequest",
 }
 
 # Document Events
@@ -261,3 +262,5 @@ fixtures = [ {
     ]
 }  ]
 
+
+website_route_rules = [{'from_route': '/task-ui/<path:app_path>', 'to_route': 'task-ui'},]

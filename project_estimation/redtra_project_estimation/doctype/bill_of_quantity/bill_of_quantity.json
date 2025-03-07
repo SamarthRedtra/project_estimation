@@ -16,10 +16,30 @@
   "project_start_date",
   "project_end_date",
   "price_list",
-  "estimated_items_section",
-  "items",
+  "estimated_duration",
   "project_details_section",
-  "project_and_account_brief"
+  "project_and_account_brief",
+  "estimations_tab",
+  "estimated_items_section",
+  "allow_line_wise_markup",
+  "items",
+  "costing_and_pricing_tab",
+  "overheads",
+  "costing_section",
+  "total_hours",
+  "overhead",
+  "ovehead_value",
+  "column_break_ofsk",
+  "total_material_cost_cost",
+  "total_labour_cost_cost",
+  "total_amount_cost",
+  "total_estimated_amount_cost",
+  "column_break_fhwz",
+  "total_material_cost",
+  "total_labour_cost",
+  "total_amount",
+  "grand_markup",
+  "total_estimated_value"
  ],
  "fields": [
   {
@@ -40,6 +60,18 @@
    "label": "Project",
    "options": "Project",
    "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_line_wise_markup",
+   "fieldtype": "Check",
+   "label": "Allow Line Wise Markup"
+  },
+  {
+   "depends_on": "eval:doc.allow_line_wise_markup == 0",
+   "fieldname": "grand_markup",
+   "fieldtype": "Percent",
+   "label": "Markup (%)"
   },
   {
    "fieldname": "amended_from",
@@ -110,12 +142,117 @@
    "label": "Project Estimation",
    "options": "Project Estimation",
    "reqd": 1
+  },
+  {
+   "fieldname": "estimations_tab",
+   "fieldtype": "Tab Break",
+   "label": "Estimations"
+  },
+  {
+   "fieldname": "costing_and_pricing_tab",
+   "fieldtype": "Tab Break",
+   "label": "Overheads and Costing"
+  },
+  {
+   "fieldname": "overheads",
+   "fieldtype": "Table",
+   "label": "Overheads",
+   "options": "Project Account"
+  },
+  {
+   "fieldname": "costing_section",
+   "fieldtype": "Section Break",
+   "label": "Costing"
+  },
+  {
+   "fieldname": "total_hours",
+   "fieldtype": "Float",
+   "label": "Total Hours",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "description": "Excluding Overheads",
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "label": "Total Amount (Billing)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_fhwz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "overhead",
+   "fieldtype": "Percent",
+   "label": "Overhead(%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ovehead_value",
+   "fieldtype": "Currency",
+   "label": "Overhead Value",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_estimated_value",
+   "fieldtype": "Currency",
+   "label": "Total Estimated Amount (Billing)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_labour_cost",
+   "fieldtype": "Currency",
+   "label": "Total Labour Cost (Billing)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_material_cost",
+   "fieldtype": "Currency",
+   "label": "Total Material Cost (Billing)",
+   "read_only": 1
+  },
+  {
+   "description": "Ex. 30 days, 60 days, 180 days",
+   "fieldname": "estimated_duration",
+   "fieldtype": "Int",
+   "label": "Estimated Duration",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_ofsk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_material_cost_cost",
+   "fieldtype": "Currency",
+   "label": "Total Material Cost (Cost)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_labour_cost_cost",
+   "fieldtype": "Currency",
+   "label": "Total Labour Cost (Cost)",
+   "read_only": 1
+  },
+  {
+   "description": "Excluding Overheads",
+   "fieldname": "total_amount_cost",
+   "fieldtype": "Currency",
+   "label": "Total Amount (Cost)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_estimated_amount_cost",
+   "fieldtype": "Currency",
+   "label": "Total Estimated Amount (Cost)",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-04 07:27:21.485317",
+ "modified": "2025-03-07 03:27:14.396776",
  "modified_by": "Administrator",
  "module": "Redtra Project Estimation",
  "name": "Bill of Quantity",

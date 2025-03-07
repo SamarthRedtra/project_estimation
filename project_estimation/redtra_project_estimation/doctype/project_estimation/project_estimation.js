@@ -40,7 +40,17 @@ frappe.ui.form.on('Project Estimation', {
         }
     },
     refresh: function(frm) { 
+
         var me = this;  
+        let total_overheads = 0;
+
+        if(frm.doc.overheads.length>0){
+            frm.doc.overheads.forEach(overhead => {
+                total_overheads += overhead.amount;
+            })
+            frm.set_value('ovehead_value', total_overheads);
+        }
+
 
         console.log('inside onload')
         if(frm.doc.docstatus == 1){
@@ -132,60 +142,77 @@ frappe.ui.form.on('Project Estimation', {
         }
 
     
-        if (frm.doc.overhead > 0) {
-            let overhead_value = frm.doc.total_amount * (frm.doc.overhead / 100);
-            if (frm.doc.ovehead_value !== overhead_value)
-            {
-                frm.set_value('ovehead_value', overhead_value);
-                console.log("inside overhead2",frm.doc.ovehead_value !== overhead_value)
-            }
-
-            let total_estimated_value = frm.doc.total_amount + overhead_value 
+        if (frm.doc.ovehead_value > 0 && frm.doc.docstatus == 0) {
+            let overhead_value = frm.doc.ovehead_value
+            let total_estimated_value = frm.doc.total_amount + overhead_value + (frm.doc.grand_markup > 0 ? (frm.doc.total_amount * (frm.doc.grand_markup / 100)) : 0);
             if(total_estimated_value !== frm.doc.total_estimated_value){
                 console.log(total_estimated_value !== frm.doc.total_estimated_value,total_estimated_value, frm.doc.total_estimated_value)
                 frm.set_value('total_estimated_value', total_estimated_value);
                 console.log("inside overhea1d",total_estimated_value !== frm.doc.total_estimated_value,total_estimated_value,frm.doc.total_estimated_value)
             }
-            let total_estimated_value_cost = frm.doc.total_amount_cost + overhead_value 
+            let total_estimated_value_cost = frm.doc.total_amount_cost + overhead_value  +  (frm.doc.grand_markup > 0 ? (frm.doc.total_amount_cost * (frm.doc.grand_markup / 100)) : 0);
             if(total_estimated_value_cost !== frm.doc.total_estimated_amount_cost){
                 frm.set_value('total_estimated_amount_cost', total_estimated_value_cost);
                 console.log("inside overhead cost",total_estimated_value_cost !== frm.doc.total_estimated_amount_cost)
             }
+            let overheade_percentage = (overhead_value / frm.doc.total_amount) * 100;
+            if(overheade_percentage !== frm.doc.overhead){
+                frm.set_value('overhead', overheade_percentage);
+                console.log("inside overhead percentage",overheade_percentage !== frm.doc.overhead)
+            }
            
             console.log("inside overhead",total_estimated_value !== frm.doc.total_estimated_value,overhead_value,total_amount_cost,total_estimated_value_cost , total_estimated_value)
+        }       
+    },
+    allow_line_wise_markup: function(frm) {
+         // Ensure the child table exists
+        if (!frm.fields_dict["items"] || !frm.fields_dict["items"].grid) {
+            console.error("Child table 'items' not found or not initialized.");
+            return;
         }
-    
-        // if (frm.doc.items && frm.doc.items.length > 0) {
-        //     frm.doc.items.forEach(item => {
-        //         if(item.total_hourly_rate !== frm.doc.hourly_rate){
-        //             frappe.model.set_value(item.doctype, item.name, 'total_hourly_rate', frm.doc.hourly_rate);
-        //         }
-        //         if(item.total_amount !== frm.doc.hourly_rate * item.total_man_power_hours){
-        //            frappe.model.set_value(item.doctype, item.name, 'total_amount', frm.doc.hourly_rate * item.total_man_power_hours);
-        //         }
-    
-        //         if (frm.doc.project_start_date && frm.doc.project_end_date) {
-        //             const total_days = frappe.datetime.get_day_diff(frm.doc.project_end_date, frm.doc.project_start_date) + 1;
-        //             if (total_days > 0) {
-        //                 const per_day_est_hours = (item.total_man_power_hours || 0) / total_days;
-        //                 if(per_day_est_hours !== item.per_day_est_hours){
-        //                     frappe.model.set_value(item.doctype, item.name, 'per_day_est_hours', per_day_est_hours);
-        //                 }
-        //             } else {
-        //                 frappe.msgprint(__('Project Start Date and End Date must define a valid range.'));
-        //             }
-        //         }
-        //     });
-        //     console.log("inside items2")
-            
-        // }
-       
+
+        let grid = frm.fields_dict["items"].grid;
+        grid.update_docfield_property(
+            'task',  
+            'hidden', 1      
+        );
+        if (frm.doc.allow_line_wise_markup == 1) {
+            grid.update_docfield_property(
+                'markup',  
+                'hidden', 0      
+            );
+            frm.set_value('grand_markup', 0);
+
+            frm.trigger('grand_markup');
+
+        } else {
+            grid.update_docfield_property(
+                'markup',  
+                'hidden', 1      
+            );
+            frm.trigger('remove_child_markup');
+        }
+        console.log(grid.fields_map['task'],grid.fields_map['markup'])
+        grid.refresh()
+        // Refresh UI
+        frm.refresh_field("items");
+        
     },
     total_amount: function(frm) {
         if( frm.doc.total_amount !== frm.doc.total_labour_cost){
             frm.set_value('total_labour_cost', frm.doc.total_amount);
         }
-       
+    },
+    remove_child_markup: function(frm) {
+        if(frm.doc.items.length > 0){
+                frm.doc.items.forEach(item => {
+                    frappe.model.set_value(item.doctype, item.name, 'markup', 0);
+                    frappe.model.set_value(item.doctype, item.name, 'total_amount', item.total_amount_billing);
+                })
+                frm.refresh_field('items');
+                frm.trigger('refresh');
+        }
+        
     },
     hourly_rate: function(frm) {
         let total_amount = 0
@@ -205,30 +232,19 @@ frappe.ui.form.on('Project Estimation', {
             frm.set_value('total_estimated_value', total_estimated_value);
         }
     },
-    overhead: function(frm) {
-        if (frm.doc.overhead > 0) {
-            let overhead_value = frm.doc.total_amount * (frm.doc.overhead / 100);
-            if (frm.doc.ovehead_value !== overhead_value)
-            {
-                frm.set_value('ovehead_value', overhead_value);
-                console.log("inside overhead2",frm.doc.ovehead_value !== overhead_value)
+    grand_markup: function(frm) {
+            let total_amount = frm.doc.total_amount + frm.doc.ovehead_value + (frm.doc.grand_markup > 0 ? (frm.doc.total_amount * (frm.doc.grand_markup / 100)) : 0);
+            if (total_amount !== frm.doc.total_estimated_value) {
+                frm.set_value('total_estimated_value', total_amount);
+                console.log("inside markup")
             }
-
-            let total_estimated_value = frm.doc.total_amount + overhead_value 
-            if(total_estimated_value !== frm.doc.total_estimated_value){
-                console.log(total_estimated_value !== frm.doc.total_estimated_value,total_estimated_value, frm.doc.total_estimated_value)
-                frm.set_value('total_estimated_value', total_estimated_value);
-              
-            }
-            let total_estimated_value_cost = frm.doc.total_amount_cost + overhead_value 
+            let total_estimated_value_cost = frm.doc.total_amount_cost + frm.doc.ovehead_value + (frm.doc.grand_markup > 0 ? (frm.doc.total_amount_cost * (frm.doc.grand_markup / 100)) : 0);
             if(total_estimated_value_cost !== frm.doc.total_estimated_amount_cost){
                 frm.set_value('total_estimated_amount_cost', total_estimated_value_cost);
                 console.log("inside overhead cost",total_estimated_value_cost !== frm.doc.total_estimated_amount_cost)
             }
-           
-            console.log("inside overhead")
-        }
     },
+
     make_boq: function(frm) {
         frappe.model.open_mapped_doc({
             method: "project_estimation.redtra_project_estimation.doctype.project_estimation.project_estimation.make_boq",
@@ -247,6 +263,16 @@ function make_boq(frm) {
 }
 
 frappe.ui.form.on('Project Estimation Items', {
+
+
+    form_render: function(frm, cdt, cdn) {
+        console.log('form_render');
+        setTimeout(() => {
+            frm.trigger('allow_line_wise_markup')
+        },50)
+        
+        
+    },
     item: function(frm, cdt, cdn) {
         // Trigger on Item selection
         const row = locals[cdt][cdn];
@@ -299,6 +325,13 @@ frappe.ui.form.on('Project Estimation Items', {
         const row = locals[cdt][cdn];
         calculate_item_amount(frm, row);
     },
+    item_markup: function(frm,cdt, cdn){
+        var row = locals[cdt][cdn]
+        if (row.item_markup > 0){
+            var  new_cost_rate = row.cost_rate + (row.cost_rate * (row.item_markup/100));
+            frappe.model.set_value(row.doctype, row.name, 'rate', new_cost_rate);
+        }
+    },
     cost_rate: function(frm, cdt, cdn) {
         // Trigger on Cost Rate change
         const row = locals[cdt][cdn];
@@ -321,6 +354,27 @@ frappe.ui.form.on('Project Estimation Items', {
         if( parseInt(frm.estimated_duration)>0){
             row.per_day_est_hours = parseFloat(row.total_man_power_hours) / parseInt(frm.estimated_duration);   
         }
+        frappe.call({
+            method: 'update_activity_type',
+            doc: frm.doc,
+            args: {  // Proper args structure
+                activity_type: row.activity_type,
+                costing_rate: row.costing_rate,
+                billing_rate: row.billing_rate
+            },
+            true: true,
+            freeze_message: __('Updating rates...'),
+            callback: function(response) {
+                if (response.exc) {
+                    frappe.msgprint(__("Error updating rates: {0}", [response.exc]));
+                } else {
+                    console.log('Values updated successfully', response.message);
+                }
+            },
+            error: function(err) {
+                console.error('API call failed:', err);
+            }
+        });
        
     },
     cost_rate: function(frm, cdt, cdn) {
@@ -332,6 +386,19 @@ frappe.ui.form.on('Project Estimation Items', {
         // Trigger on Billing Rate change
         const row = locals[cdt][cdn];
         setcalculations(frm, row);
+    },
+    refresh: function(frm, cdt , cdn){
+        const row = locals[cdt][cdn];
+        console.log("inside onloadd",row)
+
+    },
+    markup: function(frm, cdt, cdn) {
+        const row = locals[cdt][cdn];
+        if (row.markup > 0){
+            row.total_amount = row.total_amount_billing + (row.total_amount_billing * (row.markup/100));
+            frappe.model.set_value(row.doctype, row.name, 'cost_rate', row.total_amount);
+            frm.trigger('refresh');
+        }
     }
 });
 
@@ -345,6 +412,7 @@ function calculate_item_amount_for_costing(frm, row) {
     const amount = (row.cost_rate || 0) * (row.quantity || 0);
     frappe.model.set_value(row.doctype, row.name, 'cost_amount', amount);
 }
+
 
 function setcalculations(frm,row){
     if( row.cost_amount > 0 && row.cost_amount != row.total_material_cost_cost ){
@@ -366,10 +434,19 @@ function setcalculations(frm,row){
         frappe.model.set_value(row.doctype, row.name, 'total_labour_cost_billing',parseFloat(row.total_man_power_hours) * parseFloat(row.billing_rate));
     }
     if( row.total_material_cost_cost > 0 && row.total_material_cost_billing > 0){
-        row.total_amount = row.total_material_cost_billing + row.total_labour_cost_billing ;
-        frappe.model.set_value(row.doctype, row.name, 'total_amount', row.total_amount);
+        row.total_amount_billing = row.total_material_cost_billing + row.total_labour_cost_billing ;
+        frappe.model.set_value(row.doctype, row.name, 'total_amount_billing', row.total_amount_billing);
         row.total_amount_cost = row.total_material_cost_cost + row.total_labour_cost_cost;
         frappe.model.set_value(row.doctype, row.name, 'total_amount_cost', row.total_amount_cost);
+    }
+
+    if(row.markup>0){
+        row.total_amount = row.total_amount_billing + (row.total_amount_billing * (row.markup/100));
+        frappe.model.set_value(row.doctype, row.name, 'total_amount', row.total_amount);
+    }
+    else{
+        row.total_amount = row.total_amount_billing;
+        frappe.model.set_value(row.doctype, row.name, 'total_amount', row.total_amount);
     }
     frm.refresh_field("items")
 }

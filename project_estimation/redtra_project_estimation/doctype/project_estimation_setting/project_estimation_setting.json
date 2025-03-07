@@ -5,7 +5,11 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "allow_multiple_purchase_price"
+  "allow_multiple_purchase_price",
+  "default_payable_account",
+  "default_inventory_account",
+  "column_break_utmj",
+  "material_check"
  ],
  "fields": [
   {
@@ -13,12 +17,36 @@
    "fieldname": "allow_multiple_purchase_price",
    "fieldtype": "Check",
    "label": "Allow Multiple Purchase Price for Same Supplier"
+  },
+  {
+   "fieldname": "default_inventory_account",
+   "fieldtype": "Link",
+   "label": "Default Inventory Account",
+   "link_filters": "[[\"Account\",\"is_group\",\"=\",0]]",
+   "options": "Account"
+  },
+  {
+   "fieldname": "default_payable_account",
+   "fieldtype": "Link",
+   "label": "Default Payable Account",
+   "link_filters": "[[\"Account\",\"is_group\",\"=\",0]]",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_utmj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "material_check",
+   "fieldtype": "Check",
+   "label": "Enable Material Budget Check"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-03-04 03:31:06.705543",
+ "modified": "2025-03-07 23:19:47.331538",
  "modified_by": "Administrator",
  "module": "Redtra Project Estimation",
  "name": "Project Estimation Setting",

@@ -7,33 +7,35 @@
  "engine": "InnoDB",
  "field_order": [
   "activity_details_section",
-  "activity_type",
   "task",
+  "activity_type",
+  "total_man_power_hours",
   "column_break_xlbs",
   "costing_rate",
   "billing_rate",
+  "per_day_est_hours",
   "items_details_section",
   "item",
+  "uom",
   "brand",
   "column_break_lpvm",
   "quantity",
+  "item_markup",
   "column_break_yzif",
-  "rate",
   "cost_rate",
+  "rate",
   "column_break_gfsa",
-  "amount",
   "cost_amount",
-  "hours_consumption_section",
-  "total_man_power_hours",
-  "column_break_uxet",
-  "per_day_est_hours",
+  "amount",
   "calculations_section",
   "total_material_cost_cost",
   "total_labour_cost_cost",
   "total_amount_cost",
+  "markup",
   "column_break_qlhs",
   "total_material_cost_billing",
   "total_labour_cost_billing",
+  "total_amount_billing",
   "total_amount"
  ],
  "fields": [
@@ -54,14 +56,14 @@
    "fetch_from": "activity_type.costing_rate",
    "fieldname": "costing_rate",
    "fieldtype": "Currency",
-   "label": "Costing Rate (Per Hour)",
+   "label": "Labour Costing Rate (Per Hour)",
    "precision": "6"
   },
   {
    "fetch_from": "activity_type.billing_rate",
    "fieldname": "billing_rate",
    "fieldtype": "Currency",
-   "label": "Billing Rate (Per Hour)",
+   "label": "Labour Billing Rate (Per Hour)",
    "precision": "6"
   },
   {
@@ -105,6 +107,7 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Selling Rate",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -117,6 +120,7 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Selling Amount",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -129,16 +133,11 @@
    "options": "Brand"
   },
   {
-   "fieldname": "hours_consumption_section",
-   "fieldtype": "Section Break",
-   "label": "Hours Consumption"
-  },
-  {
    "columns": 1,
    "fieldname": "total_man_power_hours",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Total Man Power Hours Required",
+   "label": "Total Estimated Labour Hours Required",
    "precision": "4",
    "reqd": 1
   },
@@ -158,18 +157,15 @@
   },
   {
    "columns": 1,
+   "description": "With Markup",
    "fieldname": "total_amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Total Amount (Billing)",
+   "label": "Grand Total Amount ",
    "read_only": 1
   },
   {
    "fieldname": "column_break_qlhs",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_uxet",
    "fieldtype": "Column Break"
   },
   {
@@ -193,22 +189,26 @@
   {
    "fieldname": "total_material_cost_cost",
    "fieldtype": "Currency",
-   "label": "Total Material Cost (Cost)"
+   "label": "Total Material Cost (Cost)",
+   "read_only": 1
   },
   {
    "fieldname": "total_material_cost_billing",
    "fieldtype": "Currency",
-   "label": "Total Material Cost (Billing)"
+   "label": "Total Material Cost (Billing)",
+   "read_only": 1
   },
   {
    "fieldname": "total_labour_cost_cost",
    "fieldtype": "Currency",
-   "label": "Total Labour Cost (Cost)"
+   "label": "Total Labour Cost (Cost)",
+   "read_only": 1
   },
   {
    "fieldname": "total_labour_cost_billing",
    "fieldtype": "Currency",
-   "label": "Total Labour Cost (Billing)"
+   "label": "Total Labour Cost (Billing)",
+   "read_only": 1
   },
   {
    "columns": 1,
@@ -217,12 +217,36 @@
    "in_list_view": 1,
    "label": "Total Amount (Cost)",
    "read_only": 1
+  },
+  {
+   "fieldname": "item_markup",
+   "fieldtype": "Percent",
+   "label": "Item Markup (%)"
+  },
+  {
+   "fieldname": "total_amount_billing",
+   "fieldtype": "Currency",
+   "label": "Total Amount (Billing)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "markup",
+   "fieldtype": "Percent",
+   "label": "Markup (%)"
+  },
+  {
+   "fetch_from": "item.stock_uom",
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "label": "UOM",
+   "options": "UOM",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-03-04 02:22:38.428994",
+ "modified": "2025-03-06 23:44:30.188185",
  "modified_by": "Administrator",
  "module": "Redtra Project Estimation",
  "name": "Project Estimation Items",

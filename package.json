@@ -1,0 +1,15 @@
+{
+  "name": "project_estimation",
+  "version": "1.0.0",
+  "description": "Its a Project Estimation Tool",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "cd task-ui && yarn install",
+    "dev": "cd task-ui && yarn dev",
+    "build": "cd task-ui && yarn build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
