@@ -12,12 +12,9 @@ import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import { UserProvider } from "@/contexts/UserContext";
 
-import { FrappeProvider } from 'frappe-react-sdk'
-
 // Add this import
-import { useFrappeAuth } from 'frappe-react-sdk';
+import { useFrappeAuth ,FrappeProvider} from 'frappe-react-sdk';
 import { Navigate, Outlet } from 'react-router-dom';
-import { set } from "date-fns";
 import { Loader } from "./components/Loader";
 
 // Add this component
@@ -29,30 +26,50 @@ const ProtectedRoute = () => {
   return currentUser ? <Outlet /> : <Navigate to="/login" />;
 };
 
-const App = () => (
-  <FrappeProvider>
-    <QueryClientProvider client={new QueryClient()}>
-      <TooltipProvider>
-        <UserProvider>
-          <Toaster />
-          <Sonner position="top-center" />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route element={<ProtectedRoute />}>
-                <Route path="/" element={<Index />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/history" element={<History />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/settings" element={<Settings />} />
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </UserProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </FrappeProvider>
-);
+import { Provider } from 'react-redux';
+import { store } from './store';
+
+import { StrictMode } from 'react';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+const App = () => {
+  return (
+    <StrictMode>
+      <Provider store={store}>
+        <QueryClientProvider client={queryClient}>
+          <FrappeProvider>
+            <TooltipProvider>
+              <UserProvider>
+                <Toaster />
+                <Sonner position="top-center" />
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route element={<ProtectedRoute />}>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/profile" element={<Profile />} />
+                      <Route path="/history" element={<History />} />
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/settings" element={<Settings />} />
+                    </Route>
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </BrowserRouter>
+              </UserProvider>
+            </TooltipProvider>
+          </FrappeProvider>
+        </QueryClientProvider>
+      </Provider>
+    </StrictMode>
+  );
+};
 
 export default App;

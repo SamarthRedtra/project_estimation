@@ -6,6 +6,7 @@ interface User {
   avatarUrl: string | null;
   phone : string;
   company: string;
+  employeeId : string;
 }
 
 interface UserContextType {

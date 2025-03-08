@@ -11,5 +11,9 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.6.1",
+    "react-redux": "^9.2.0"
+  }
 }

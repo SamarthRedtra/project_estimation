@@ -12,11 +12,30 @@ import SubmitTimesheet from '@/components/SubmitTimesheet';
 import { useFrappeGetCall } from 'frappe-react-sdk';
 import { Loader } from '@/components/Loader';
 import {  useUser } from '@/contexts/UserContext';
+import { useDispatch } from 'react-redux';
+import { setTimesheetData, setLoading, setError } from '@/store/slices/timesheetSlice';
 
 const Index = () => {
+  const dispatch = useDispatch();
   const { data, error, isLoading } = useFrappeGetCall(
     'project_estimation.api.get_user_info'
   );
+
+  useEffect(() => {
+    if (data?.message) {
+      dispatch(setTimesheetData(data.message));
+    }
+  }, [data, dispatch]);
+
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [isLoading, dispatch]);
+
+  useEffect(() => {
+    if (error) {
+      dispatch(setError(error.message || 'An error occurred'));
+    }
+  }, [error, dispatch]);
 
   useEffect(() => {
     if (data?.message?.user) {
@@ -28,6 +47,7 @@ const Index = () => {
         avatarUrl: userInfo[4],
         company:userInfo[6]? userInfo[6] : '',
         phone:userInfo[5]? userInfo[5] : '',
+        employeeId:userInfo[7]? userInfo[7] : '',
       };
       localStorage.setItem('user', JSON.stringify(user));
 

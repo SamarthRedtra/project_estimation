@@ -20,17 +20,20 @@ export default function Profile() {
   const { user } = useUser();
   const navigate = useNavigate();
   const [phone, setPhone] = useState(user?.phone || '');
-  const {call, isLoading, error } = useFrappePutCall('frappe.client.set_value');
+  const {call, loading, error } = useFrappePutCall('frappe.client.set_value');
 
   const handleCancel = () => {
     navigate('/');
     
   };
 
+ 
+
+
 
   const saveChanges = async () => {
     if(!phone) return;
-    if (isLoading) return;
+    if (loading) return;
     if (phone === user?.phone){
       toast.success('No changes made');
       return;
@@ -49,7 +52,7 @@ export default function Profile() {
     }
   };
 
-  if(isLoading){
+  if(loading){
     return <Loader />;
   }
 
@@ -81,6 +84,13 @@ export default function Profile() {
                   <User className="h-4 w-4" /> Full Name
                 </Label>
                 <Input id="name" defaultValue={user?.name} disabled />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="company" className="flex items-center gap-2">
+                  <Building className="h-4 w-4" /> Employee ID
+                </Label>
+                <Input id="company" defaultValue={user?.employeeId} disabled />
               </div>
               
               <div className="grid gap-2">

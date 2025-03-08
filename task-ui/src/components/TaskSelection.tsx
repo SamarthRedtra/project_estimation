@@ -50,7 +50,7 @@ export default function TaskSelection() {
       </CardHeader>
       <CardContent className="p-4">
         <Select
-          value={selectedTask?.id || ''}
+          value={selectedTask?.name || ''}
           onValueChange={selectTask}
           disabled={!!activeTimer}
         >
@@ -62,8 +62,8 @@ export default function TaskSelection() {
           </SelectTrigger>
           <SelectContent position="popper">
             {selectedProject.tasks.map((task) => (
-              <SelectItem key={task.id} value={task.id}>
-                {task.name}
+              <SelectItem key={task.name} value={task.name}>
+                {task.subject}
               </SelectItem>
             ))}
           </SelectContent>

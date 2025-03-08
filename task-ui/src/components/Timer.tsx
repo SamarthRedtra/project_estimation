@@ -28,8 +28,8 @@ export default function Timer() {
   useEffect(() => {
     if (activeTimer) {
       // Calculate initial elapsed time if the timer was already running
-      if (activeTimer.startTime) {
-        const start = new Date(`${activeTimer.date}T${activeTimer.startTime}`);
+      if (activeTimer.from_time) {
+        const start = new Date(`${activeTimer.date}T${activeTimer.from_time}`);
         const now = new Date();
         const initialElapsed = Math.floor((now.getTime() - start.getTime()) / 1000);
         setElapsedSeconds(initialElapsed > 0 ? initialElapsed : 0);
@@ -142,10 +142,10 @@ export default function Timer() {
         )}
         
         {/* Notes display when timer is running */}
-        {activeTimer && activeTimer.notes && (
+        {activeTimer && activeTimer.description && (
           <div className="space-y-2">
             <p className="text-xs font-medium text-muted-foreground">Notes</p>
-            <p className="text-sm">{activeTimer.notes}</p>
+            <p className="text-sm">{activeTimer.description}</p>
           </div>
         )}
       </CardContent>

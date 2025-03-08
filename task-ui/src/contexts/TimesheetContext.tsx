@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Project, Task, Activity, TimeEntry, Timesheet, fetchProjects, fetchActivities, fetchTimesheets } from '@/lib/mockData';
+import { Project, ProjectTask, Activity, TimeEntry, Timesheet,  } from '@/lib/mockData';
 import { getTodayDate, formatDecimalHours } from '@/lib/timeUtils';
 import { toast } from 'sonner';
+import { useUser } from '@/contexts/UserContext';
 
 // Add this import at the top
 import { useFrappeAuth, useFrappeGetDocList } from 'frappe-react-sdk';
@@ -18,7 +19,7 @@ interface TimesheetContextType {
   timesheetHistory: Timesheet[];
   activeTimer: TimeEntry | null;
   selectedProject: Project | null;
-  selectedTask: Task | null;
+  selectedTask: ProjectTask | null;
   selectedActivity: Activity | null;
   
   // Actions
@@ -35,122 +36,77 @@ interface TimesheetContextType {
   currentUser: string | null;
   isLoadingAuth: boolean;
   isAppLoading: boolean;
-
-  login: (username: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
 }
 
 // Create context
 const TimesheetContext = createContext<TimesheetContextType | undefined>(undefined);
 
 // Provider component
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
+
 export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // State
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { projects, activities, isLoading, error } = useSelector((state: RootState) => state.timesheet);
+  const { user } = useUser();
+  
+  // Convert projects object to array and format it correctly
+  const projectsArray = Object.values(projects);
+  
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [selectedTask, setSelectedTask] = useState<ProjectTask | null>(null);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [activeTimer, setActiveTimer] = useState<TimeEntry | null>(null);
   const [currentTimesheet, setCurrentTimesheet] = useState<Timesheet | null>(null);
   const [timesheetHistory, setTimesheetHistory] = useState<Timesheet[]>([]);
 
-  // Load data
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Fetch data
-        const [projectsData, activitiesData, timesheetsData] = await Promise.all([
-          fetchProjects(),
-          fetchActivities(),
-          fetchTimesheets()
-        ]);
-        
-        setProjects(projectsData);
-        setActivities(activitiesData);
-        
-        // Set default selections if available
-        if (projectsData.length > 0) {
-          setSelectedProject(projectsData[0]);
-          if (projectsData[0].tasks.length > 0) {
-            setSelectedTask(projectsData[0].tasks[0]);
-          }
-        }
-        
-        if (activitiesData.length > 0) {
-          setSelectedActivity(activitiesData[0]);
-        }
-        
-        // Check for today's timesheet in history or create a new one
-        const today = getTodayDate();
-        const todayTimesheet = timesheetsData.find(ts => ts.date === today);
-        
-        if (todayTimesheet) {
-          setCurrentTimesheet(todayTimesheet);
-        } else {
-          setCurrentTimesheet({
-            id: `ts-${Date.now()}`,
-            date: today,
-            entries: [],
-            totalHours: 0,
-            status: 'draft'
-          });
-        }
-        
-        // Set history (excluding today's timesheet)
-        setTimesheetHistory(timesheetsData.filter(ts => ts.date !== today));
-        
-        // Load active timer from localStorage
-        const savedTimer = localStorage.getItem('activeTimer');
-        if (savedTimer) {
-          const timer = JSON.parse(savedTimer);
-          setActiveTimer(timer);
-        }
-      } catch (error) {
-        console.error('Error loading data:', error);
-        toast.error('Failed to load data');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    loadData();
-  }, []);
-  
-  // Save active timer to localStorage when it changes
-  useEffect(() => {
-    if (activeTimer) {
-      localStorage.setItem('activeTimer', JSON.stringify(activeTimer));
-    } else {
-      localStorage.removeItem('activeTimer');
+    if (!currentTimesheet && user) {
+      setCurrentTimesheet({
+        id: `ts-${Date.now()}`,
+        date: getTodayDate(),
+        entries: [],
+        totalHours: 0,
+        status: 'draft',
+        parent_project: '',
+        employee: user.employeeId || '',
+        customer: ''
+      });
     }
-  }, [activeTimer]);
+  }, [currentTimesheet, user]);
+  
+  
+  // Add selectActivity implementation
+  const selectActivity = (activityName: string) => {
+    const activity = activities.find(a => a.name === activityName);
+    if (activity) {
+      setSelectedActivity(activity);
+    }
+  };
 
-  // Actions
   const selectProject = (projectId: string) => {
-    const project = projects.find(p => p.id === projectId) || null;
-    setSelectedProject(project);
+    const project = projects[projectId];
+    if (project) {
+      setSelectedProject(project);
+      
+      // Reset task selection and set first task if available
+      if (project.tasks && project.tasks.length > 0) {
+        setSelectedTask(project.tasks[0]);
+      } else {
+        setSelectedTask(null);
+      }
+    }
+  };
+  
+  const selectTask = (taskSubject: string) => {
+    if (!selectedProject?.tasks) return;
     
-    // Reset task selection
-    setSelectedTask(project && project.tasks.length > 0 ? project.tasks[0] : null);
+    const task = selectedProject.tasks.find(t => t.subject === taskSubject);
+    if (task) {
+      setSelectedTask(task);
+    }
   };
-  
-  const selectTask = (taskId: string) => {
-    if (!selectedProject) return;
-    
-    const task = selectedProject.tasks.find(t => t.id === taskId) || null;
-    setSelectedTask(task);
-  };
-  
-  const selectActivity = (activityId: string) => {
-    const activity = activities.find(a => a.id === activityId) || null;
-    setSelectedActivity(activity);
-  };
-  
-  const startTimer = (notes = '') => {
+
+  const startTimer = (notes: string = '') => {
     if (!selectedProject || !selectedTask || !selectedActivity) {
       toast.error('Please select a project, task, and activity');
       return;
@@ -161,17 +117,15 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
     
     setActiveTimer({
       id: `entry-${Date.now()}`,
-      projectId: selectedProject.id,
-      projectName: selectedProject.name,
-      taskId: selectedTask.id,
-      taskName: selectedTask.name,
-      activityId: selectedActivity.id,
-      activityName: selectedActivity.name,
+      project: selectedProject.name,
+      task: selectedTask.subject,
+      activity_type: selectedActivity.name,
       date: getTodayDate(),
-      startTime: timeString,
-      endTime: null,
+      from_time: timeString,
+      to_time: null,
       duration: 0,
-      notes
+      description: notes,
+      is_billable: true
     });
     
     toast.success('Timer started');
@@ -184,18 +138,20 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
     const endTime = now.toTimeString().split(' ')[0];
     
     // Calculate duration
-    const start = new Date(`${activeTimer.date}T${activeTimer.startTime}`);
+    const start = new Date(`${activeTimer.date}T${activeTimer.from_time}`);
     const end = new Date(`${activeTimer.date}T${endTime}`);
     const durationInSeconds = Math.floor((end.getTime() - start.getTime()) / 1000);
     
     const completedEntry: TimeEntry = {
       ...activeTimer,
-      endTime,
+      to_time: endTime,
       duration: durationInSeconds
     };
     
+    console.log(currentTimesheet,'99')
     // Add to current timesheet
     if (currentTimesheet) {
+      console.log(currentTimesheet,'99')
       const updatedEntries = [...currentTimesheet.entries, completedEntry];
       const totalSeconds = updatedEntries.reduce((total, entry) => total + entry.duration, 0);
       
@@ -221,6 +177,7 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
     
     const updatedEntries = [...currentTimesheet.entries, entry];
     const totalSeconds = updatedEntries.reduce((total, entry) => total + entry.duration, 0);
+    console.log(updatedEntries,'99')
     
     setCurrentTimesheet({
       ...currentTimesheet,
@@ -268,51 +225,23 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
       date: getTodayDate(),
       entries: [],
       totalHours: 0,
-      status: 'draft'
+      status: 'draft',
+      parent_project: selectedProject?.name || '', // Add required parent_project field
+      employee: user?.employeeId || '', // Add required employee field
+      customer: selectedProject?.customer || '' // Add required customer field
     });
     
     toast.success('Timesheet submitted successfully');
   };
 
   // Add Frappe auth state
-  const { login: frappeLogin, logout: frappeLogout, currentUser, isLoading: isLoadingAuth } = useFrappeAuth();
+  const {  currentUser, isLoading: isLoadingAuth } = useFrappeAuth();
 
   // Add auth methods
-  const login = async (username: string, password: string) => {
-    setIsLoading(true);
-    try {
-      await frappeLogin({
-        username,
-        password
-      });
-      
-      toast.success('Login successful');
-    } catch (error) {
-      toast.error('Login failed. Please check your credentials.');
-      throw error;
-    }
-    finally {
-      setIsLoading(false);
-    }
-  };
-
-  const logout = async () => {
-    setIsLoading(true);
-    try {
-      await frappeLogout();
-      toast.success('Logged out successfully');
-    } catch (error) {
-      toast.error('Logout failed. Please try again.');
-      throw error;
-    }
-    finally {
-      setIsLoading(false);
-    }
-  };
 
   // Update context value
   const contextValue: TimesheetContextType = {
-    projects,
+    projects: projectsArray,
     activities,
     isLoading,
     currentTimesheet,
@@ -333,17 +262,19 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
     isAuthenticated: !!currentUser,
     currentUser: currentUser || null,
     isLoadingAuth,
-    login,
-    logout,
+  
     isAppLoading: isLoading || isLoadingAuth
   };
 
   return (
-    <TimesheetContext.Provider value={{ ...contextValue, isLoading }}>
-      {isLoading ? <Loader /> : children}
+    <TimesheetContext.Provider value={contextValue}>
+      {children}
     </TimesheetContext.Provider>
   );
 };
+
+
+
 
 // Custom hook
 export const useTimesheet = () => {

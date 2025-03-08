@@ -42,7 +42,7 @@ export default function ActivitySelector() {
       </CardHeader>
       <CardContent className="p-4">
         <Select
-          value={selectedActivity?.id || ''}
+          value={selectedActivity?.name || ''}
           onValueChange={selectActivity}
           disabled={!!activeTimer}
         >
@@ -54,7 +54,7 @@ export default function ActivitySelector() {
           </SelectTrigger>
           <SelectContent position="popper">
             {activities.map((activity) => (
-              <SelectItem key={activity.id} value={activity.id}>
+              <SelectItem key={activity.name} value={activity.name}>
                 {activity.name}
               </SelectItem>
             ))}

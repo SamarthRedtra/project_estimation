@@ -30,10 +30,10 @@ export default function CompletedActivities() {
               <div className="flex justify-between items-start mb-1">
                 <div className="flex flex-col">
                   <Badge variant="outline" className="mb-1 text-xs inline-flex w-fit">
-                    {entry.projectName}
+                    {entry.project}
                   </Badge>
-                  <span className="font-medium text-sm">{entry.taskName}</span>
-                  <span className="text-xs text-muted-foreground">{entry.activityName}</span>
+                  <span className="font-medium text-sm">{entry.task}</span>
+                  <span className="text-xs text-muted-foreground">{entry.activity_type}</span>
                 </div>
                 <Button 
                   variant="ghost" 
@@ -50,14 +50,14 @@ export default function CompletedActivities() {
                 <div className="flex items-center">
                   <ClockIcon size={12} className="mr-1" />
                   <span>
-                    {formatTimeForDisplay(entry.startTime)} - {formatTimeForDisplay(entry.endTime || '')}
+                    {formatTimeForDisplay(entry.from_time)} - {formatTimeForDisplay(entry.to_time || '')}
                   </span>
                 </div>
                 <span className="font-medium">{formatDuration(entry.duration)}</span>
               </div>
               
-              {entry.notes && (
-                <p className="mt-2 text-xs italic text-muted-foreground">{entry.notes}</p>
+              {entry.description && (
+                <p className="mt-2 text-xs italic text-muted-foreground">{entry.description}</p>
               )}
             </div>
           ))}

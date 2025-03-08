@@ -49,21 +49,21 @@ export default function ProjectList() {
           ) : (
             projects.map((project) => (
               <button
-                key={project.id}
+                key={project.name}
                 className={cn(
                   "w-full text-left px-3 py-2 rounded-md flex items-center transition-colors",
-                  selectedProject?.id === project.id
+                  selectedProject?.name === project.name
                     ? "bg-primary/10 text-primary"
                     : "hover:bg-muted",
                   activeTimer && "opacity-80 pointer-events-none"
                 )}
-                onClick={() => selectProject(project.id)}
+                onClick={() => selectProject(project.name)}
                 disabled={!!activeTimer}
               >
                 <div className="flex-1 flex flex-col">
                   <div className="flex items-center justify-between">
                     <span className="font-medium">{project.name}</span>
-                    <span className="text-xs text-muted-foreground">{project.code}</span>
+                    <span className="text-xs text-muted-foreground">{project.project_name}</span>
                   </div>
                   <span className="text-xs text-muted-foreground">
                     {project.tasks.length} {project.tasks.length === 1 ? 'task' : 'tasks'}

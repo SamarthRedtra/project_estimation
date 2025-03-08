@@ -44,6 +44,7 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+      dedupe: ['react', 'react-dom', 'react-redux']
   },
   build: {
 	outDir: '../project_estimation/public/task-ui',

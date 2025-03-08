@@ -28,22 +28,22 @@ export default function TimesheetForm() {
   
   // Helper function to get project name
   const getProjectName = (projectId: string) => {
-    const project = projects.find(p => p.id === projectId);
+    const project = projects.find(p => p.name === projectId);
     return project ? project.name : 'Unknown Project';
   };
   
   // Helper function to get task name
   const getTaskName = (projectId: string, taskId: string) => {
-    const project = projects.find(p => p.id === projectId);
+    const project = projects.find(p => p.name === projectId);
     if (!project) return 'Unknown Task';
     
-    const task = project.tasks.find(t => t.id === taskId);
+    const task = project.tasks.find(t => t.name === taskId);
     return task ? task.name : 'Unknown Task';
   };
   
   // Helper function to get activity name
   const getActivityName = (activityId: string) => {
-    const activity = activities.find(a => a.id === activityId);
+    const activity = activities.find(a => a.name === activityId);
     return activity ? activity.name : 'Unknown Activity';
   };
   
@@ -101,11 +101,11 @@ export default function TimesheetForm() {
                   {currentTimesheet.entries.map((entry) => (
                     <TableRow key={entry.id}>
                       <TableCell className="align-top">
-                        <div className="font-medium">{getProjectName(entry.projectId)}</div>
-                        <div className="text-xs text-muted-foreground">{getTaskName(entry.projectId, entry.taskId)}</div>
+                        <div className="font-medium">{getProjectName(entry.project)}</div>
+                        <div className="text-xs text-muted-foreground">{getTaskName(entry.project, entry.task)}</div>
                       </TableCell>
                       <TableCell className="align-top">
-                        {getActivityName(entry.activityId)}
+                        {getActivityName(entry.activity_type)}
                       </TableCell>
                       <TableCell className="text-right font-mono align-top">
                         {formatDuration(entry.duration)}
