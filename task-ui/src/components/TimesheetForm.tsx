@@ -79,10 +79,10 @@ export default function TimesheetForm() {
       </CardHeader>
       
       <CardContent className="p-4">
-        {!currentTimesheet || currentTimesheet.entries.length === 0 ? (
+        {!currentTimesheet || currentTimesheet.time_logs.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground flex flex-col items-center">
             <Clock className="h-8 w-8 mb-2 opacity-30" />
-            <p>No time entries recorded today</p>
+            <p>No time time_logs recorded today</p>
             <p className="text-sm">Use the timer to track your work</p>
           </div>
         ) : (
@@ -98,7 +98,7 @@ export default function TimesheetForm() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {currentTimesheet.entries.map((entry) => (
+                  {currentTimesheet.time_logs.map((entry) => (
                     <TableRow key={entry.id}>
                       <TableCell className="align-top">
                         <div className="font-medium">{getProjectName(entry.project)}</div>
@@ -140,7 +140,7 @@ export default function TimesheetForm() {
       <CardFooter className="px-4 py-3 border-t">
         <Button 
           className="w-full"
-          disabled={!currentTimesheet || currentTimesheet.entries.length === 0}
+          disabled={!currentTimesheet || currentTimesheet.time_logs.length === 0}
           onClick={submitTimesheet}
         >
           Submit Timesheet

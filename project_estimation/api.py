@@ -68,3 +68,13 @@ def get_all_details_of_projects_assigned(user):
     for project,details in project_details.items():
         details['tasks'] = projects.get(project, [])
     return project_details  
+
+
+
+@frappe.whitelist()
+def get_timesheet_doc(name):
+    res = frappe.get_doc("Timesheet",name).as_dict()
+    for i in res.time_logs:
+        i['duration'] = i.get('hours') * 36000
+        
+    return res     

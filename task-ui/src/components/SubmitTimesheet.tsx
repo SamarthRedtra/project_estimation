@@ -8,10 +8,10 @@ import { cn } from '@/lib/utils';
 export default function SubmitTimesheet() {
   const { currentTimesheet, submitTimesheet, activeTimer } = useTimesheet();
   
-  // If there are no entries, don't enable the submit button
-  const hasEntries = currentTimesheet && currentTimesheet.entries.length > 0;
+  // If there are no time_logs, don't enable the submit button
+  const hastime_logs = currentTimesheet && currentTimesheet.time_logs.length > 0;
   
-  if (!hasEntries && !activeTimer) {
+  if (!hastime_logs && !activeTimer) {
     return null;
   }
   
@@ -22,9 +22,9 @@ export default function SubmitTimesheet() {
         size="lg"
         className={cn(
           "w-full shadow-lg border border-primary/10",
-          hasEntries ? "animate-pulse" : "opacity-50"
+          hastime_logs ? "animate-pulse" : "opacity-50"
         )}
-        disabled={!hasEntries || !!activeTimer}
+        disabled={!hastime_logs || !!activeTimer}
         onClick={submitTimesheet}
       >
         <Send size={16} className="mr-2" />
@@ -37,7 +37,7 @@ export default function SubmitTimesheet() {
         </p>
       )}
       
-      {!hasEntries && !activeTimer && (
+      {!hastime_logs && !activeTimer && (
         <p className="text-xs text-center mt-2 text-muted-foreground">
           Add at least one activity to submit
         </p>

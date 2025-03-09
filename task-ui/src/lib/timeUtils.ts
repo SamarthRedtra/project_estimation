@@ -58,3 +58,9 @@ export const formatTimeForDisplay = (timeString: string): string => {
   
   return `${hours12}:${minutes} ${period}`;
 };
+
+// Convert time string (HH:mm:ss) to datetime format
+export const convertTimeToDateTime = (timeString: string, date?: string): string => {
+  const currentDate = date || getTodayDate();
+  return `${currentDate} ${timeString}`;
+};

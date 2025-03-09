@@ -36,6 +36,7 @@ export interface Activity {
 export interface TimeEntry {
   id: string;
   project: string;
+  name: string;
   task: string;
   activity_type: string;
   date: string;
@@ -49,7 +50,8 @@ export interface TimeEntry {
 export interface Timesheet {
   id: string;
   date: string;
-  entries: TimeEntry[];
+  name: string;
+  time_logs: TimeEntry[];
   parent_project: string;
   employee: string;
   customer: string;

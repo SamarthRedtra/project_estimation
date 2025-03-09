@@ -12,7 +12,7 @@ export default function DailyTimer() {
   
   // Start the daily timer as soon as the component mounts
   useEffect(() => {
-    if (currentTimesheet && currentTimesheet.entries.length > 0) {
+    if (currentTimesheet && currentTimesheet.time_logs.length > 0) {
       // Start interval
       intervalRef.current = setInterval(() => {
         setTotalSeconds(prev => prev + 1);
@@ -24,20 +24,20 @@ export default function DailyTimer() {
         clearInterval(intervalRef.current);
       }
     };
-  }, [currentTimesheet?.entries]);
+  }, [currentTimesheet?.time_logs]);
   
-  // Update the total seconds when entries change
+  // Update the total seconds when time_logs change
   useEffect(() => {
-    if (currentTimesheet && currentTimesheet.entries.length > 0) {
-      const entriesTotal = currentTimesheet.entries.reduce((total, entry) => total + entry.duration, 0);
+    if (currentTimesheet && currentTimesheet.time_logs.length > 0) {
+      const time_logsTotal = currentTimesheet.time_logs.reduce((total, entry) => 
+        total + Math.floor(entry.duration), 0
+      );
       
-      // Only update if entries total is greater than current total
-      // This prevents resetting the counter when entries are removed
-      if (entriesTotal > totalSeconds) {
-        setTotalSeconds(entriesTotal);
+      if (time_logsTotal > totalSeconds) {
+        setTotalSeconds(time_logsTotal);
       }
     }
-  }, [currentTimesheet?.entries]);
+  }, [currentTimesheet?.time_logs]);
   
   return (
     <Card className="w-full border-0 bg-gradient-to-r from-primary/10 to-primary/5 shadow-sm sticky top-14 z-10">
@@ -57,7 +57,7 @@ export default function DailyTimer() {
             <div className="text-sm mt-1 flex items-center">
               <Clock size={14} className="mr-1 text-primary" />
               <span>
-                {currentTimesheet?.entries.length || 0} {(currentTimesheet?.entries.length || 0) === 1 ? 'entry' : 'entries'}
+                {currentTimesheet?.time_logs.length || 0} {(currentTimesheet?.time_logs.length || 0) === 1 ? 'entry' : 'entries'}
               </span>
             </div>
           </div>

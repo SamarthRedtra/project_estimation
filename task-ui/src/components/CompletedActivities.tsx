@@ -10,8 +10,8 @@ import { Badge } from '@/components/ui/badge';
 export default function CompletedActivities() {
   const { currentTimesheet, removeEntry } = useTimesheet();
   
-  // If there are no entries, don't render anything
-  if (!currentTimesheet || currentTimesheet.entries.length === 0) {
+  // If there are no time_logs, don't render anything
+  if (!currentTimesheet || currentTimesheet.time_logs.length === 0) {
     return null;
   }
   
@@ -25,8 +25,8 @@ export default function CompletedActivities() {
       </CardHeader>
       <CardContent className="p-0 max-h-[200px] overflow-y-auto">
         <div className="divide-y">
-          {currentTimesheet.entries.map((entry) => (
-            <div key={entry.id} className="p-3 hover:bg-muted/30">
+          {currentTimesheet.time_logs.map((entry) => (
+            <div key={entry.id + '14' + Date()} className="p-3 hover:bg-muted/30">
               <div className="flex justify-between items-start mb-1">
                 <div className="flex flex-col">
                   <Badge variant="outline" className="mb-1 text-xs inline-flex w-fit">
