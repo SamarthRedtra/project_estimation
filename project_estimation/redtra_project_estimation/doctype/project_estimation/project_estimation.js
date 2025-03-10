@@ -356,10 +356,17 @@ frappe.ui.form.on('Project Estimation Items', {
         // Trigger on Total Man Power Hours change
         const row = locals[cdt][cdn];
         console.log("inside man power hours")
+
+        row.labour_cost_per_unit = row.total_man_power_hours * row.billing_rate;
+        frappe.model.set_value(cdt, cdn,'labour_cost_per_unit', row.labour_cost_per_unit);
+        
         setcalculations(frm,row);
         if( parseInt(frm.estimated_duration)>0){
             row.per_day_est_hours = parseFloat(row.total_man_power_hours) / parseInt(frm.estimated_duration);   
         }
+        
+        
+
         frappe.call({
             method: 'update_activity_type',
             doc: frm.doc,
@@ -396,7 +403,12 @@ frappe.ui.form.on('Project Estimation Items', {
         // Trigger on Billing Rate change
         const row = locals[cdt][cdn];
         setcalculations(frm, row);
+        if(row.total_man_power_hours > 0){
+            frappe.model.set_value(row.doctype, row.name,'labour_cost_per_unit', row.billing_rate * row.total_man_power_hours)
+
+        }
     },
+        
     refresh: function(frm, cdt , cdn){
         const row = locals[cdt][cdn];
         console.log("inside onloadd",row)
@@ -406,7 +418,7 @@ frappe.ui.form.on('Project Estimation Items', {
         const row = locals[cdt][cdn];
         if (row.markup > 0){
             row.total_amount = row.total_amount_billing + (row.total_amount_billing * (row.markup/100));
-            frappe.model.set_value(row.doctype, row.name, 'cost_rate', row.total_amount);
+            frappe.model.set_value(row.doctype, row.name, 'total_amount', row.total_amount);
             frm.trigger('refresh');
         }
     }
@@ -436,12 +448,12 @@ function setcalculations(frm,row){
     }
     if( row.total_man_power_hours > 0 && row.costing_rate > 0){
         row.total_labour_cost_cost = parseFloat(row.total_man_power_hours) * parseFloat(row.costing_rate) * (row.quantity?row.quantity:1);
-        frappe.model.set_value(row.doctype, row.name, 'total_labour_cost_cost', parseFloat(row.total_man_power_hours) * parseFloat(row.costing_rate) * (row.quantity?row.quantity:1));
+        frappe.model.set_value(row.doctype, row.name, 'total_labour_cost_cost',row.total_labour_cost_cost );
         console.log("inside manpower")
     }
     if( row.total_man_power_hours > 0 && row.billing_rate ){
         row.total_labour_cost_billing = parseFloat(row.total_man_power_hours) * parseFloat(row.billing_rate) * (row.quantity?row.quantity:1);
-        frappe.model.set_value(row.doctype, row.name, 'total_labour_cost_billing',parseFloat(row.total_man_power_hours) * parseFloat(row.billing_rate) * (row.quantity?row.quantity:1));
+        frappe.model.set_value(row.doctype, row.name, 'total_labour_cost_billing',row.total_labour_cost_billing);
     }
     if( row.total_material_cost_cost > 0 && row.total_material_cost_billing > 0){
         row.total_amount_billing = row.total_material_cost_billing + row.total_labour_cost_billing ;
@@ -453,14 +465,18 @@ function setcalculations(frm,row){
     if(row.markup>0){
 
         row.total_amount = row.total_amount_billing + (row.total_amount_billing * (row.markup/100));
-        row.unit_markup =  (row.total_amount / row.quantity)
+        row.unit_selling =  (row.total_amount / row.quantity)
+        row.unit_markup =  (row.total_amount_billing * (row.markup/100)) / (row.quantity || 1)
         frappe.model.set_value(row.doctype, row.name, 'total_amount', row.total_amount);
+        frappe.model.set_value(row.doctype, row.name, 'unit_selling', row.unit_selling);
         frappe.model.set_value(row.doctype, row.name, 'unit_markup', row.unit_markup);
     }
     else{
         row.total_amount = row.total_amount_billing;
         frappe.model.set_value(row.doctype, row.name, 'total_amount', row.total_amount);
     }
+
+    frappe.model.set_value(row.doctype, row.name,'total_cost_per_unit',row.labour_cost_per_unit + row.rate )
     frm.refresh_field("items")
 }
 

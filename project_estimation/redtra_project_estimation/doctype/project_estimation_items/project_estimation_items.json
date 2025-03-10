@@ -10,6 +10,7 @@
   "task",
   "activity_type",
   "total_man_power_hours",
+  "labour_cost_per_unit",
   "column_break_xlbs",
   "costing_rate",
   "billing_rate",
@@ -28,6 +29,7 @@
   "cost_amount",
   "amount",
   "calculations_section",
+  "total_cost_per_unit",
   "total_material_cost_cost",
   "total_labour_cost_cost",
   "total_amount_cost",
@@ -37,6 +39,7 @@
   "total_labour_cost_billing",
   "total_amount_billing",
   "unit_markup",
+  "unit_selling",
   "total_amount"
  ],
  "fields": [
@@ -248,12 +251,31 @@
    "fieldtype": "Currency",
    "label": "Unit Markup",
    "read_only": 1
+  },
+  {
+   "fieldname": "labour_cost_per_unit",
+   "fieldtype": "Currency",
+   "label": "Labour Cost Per Unit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_cost_per_unit",
+   "fieldtype": "Currency",
+   "label": "Total Cost Per Unit",
+   "read_only": 1
+  },
+  {
+   "description": "With Markup",
+   "fieldname": "unit_selling",
+   "fieldtype": "Currency",
+   "label": "Unit Selling",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-03-09 19:46:00.249330",
+ "modified": "2025-03-11 02:45:02.976091",
  "modified_by": "Administrator",
  "module": "Redtra Project Estimation",
  "name": "Project Estimation Items",
