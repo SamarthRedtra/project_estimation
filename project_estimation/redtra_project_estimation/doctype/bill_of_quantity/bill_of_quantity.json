@@ -13,8 +13,6 @@
   "project_estimation",
   "column_break_path",
   "company",
-  "project_start_date",
-  "project_end_date",
   "price_list",
   "estimated_duration",
   "project_details_section",
@@ -29,11 +27,13 @@
   "total_hours",
   "overhead",
   "ovehead_value",
+  "total_line_markup",
   "column_break_ofsk",
   "total_material_cost_cost",
   "total_labour_cost_cost",
   "total_amount_cost",
   "total_estimated_amount_cost",
+  "profit",
   "column_break_fhwz",
   "total_material_cost",
   "total_labour_cost",
@@ -92,20 +92,6 @@
    "fieldtype": "Link",
    "label": "Company",
    "options": "Company",
-   "reqd": 1
-  },
-  {
-   "fieldname": "project_start_date",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "Project Start Date",
-   "reqd": 1
-  },
-  {
-   "fieldname": "project_end_date",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "Project End Date",
    "reqd": 1
   },
   {
@@ -247,12 +233,24 @@
    "fieldtype": "Currency",
    "label": "Total Estimated Amount (Cost)",
    "read_only": 1
+  },
+  {
+   "fieldname": "total_line_markup",
+   "fieldtype": "Currency",
+   "label": "Total Line Markup",
+   "read_only": 1
+  },
+  {
+   "fieldname": "profit",
+   "fieldtype": "Currency",
+   "label": "Profit",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-07 03:27:14.396776",
+ "modified": "2025-03-11 22:05:56.571974",
  "modified_by": "Administrator",
  "module": "Redtra Project Estimation",
  "name": "Bill of Quantity",

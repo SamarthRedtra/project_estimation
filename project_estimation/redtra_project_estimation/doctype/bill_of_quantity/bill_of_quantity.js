@@ -71,6 +71,7 @@ frappe.ui.form.on("Bill of Quantity", {
         let total_amount_cost = 0;
         let total_labour_cost =0;
         let total_labour_cost_cost =0;
+        let total_line_markup = 0;
 
     
         if (frm.doc.items && frm.doc.items.length > 0) {
@@ -82,6 +83,7 @@ frappe.ui.form.on("Bill of Quantity", {
                 total_amount_cost += item.total_amount_cost || 0;
                 total_labour_cost += item.total_labour_cost_billing || 0;
                 total_labour_cost_cost += item.total_labour_cost_cost || 0;
+                total_line_markup  += item.unit_markup || 0;
             });
             console.log("inside items", total_hours, total_material_cost, total_material_cost_cost, total_amount, total_amount_cost, total_labour_cost, total_labour_cost_cost)
         }
@@ -98,6 +100,15 @@ frappe.ui.form.on("Bill of Quantity", {
         if(frm.doc.total_material_cost_cost !== total_material_cost_cost) {
             frm.set_value('total_material_cost_cost', total_material_cost_cost);
             console.log((frm.doc.total_material_cost_cost !== total_material_cost_cost),total_material_cost_cost)
+        }
+       
+        if(frm.doc.total_line_markup  != total_line_markup ){
+            frm.set_value('total_line_markup', total_line_markup);
+            console.log((frm.doc.total_line_markup  != total_line_markup ),total_line_markup)
+        }
+
+        if(frm.doc.total_estimated_amount_cost>0 && frm.doc.total_estimated_value > 0){
+            frm.set_value('profit', (frm.doc.total_estimated_value - frm.doc.total_estimated_amount_cost));
         }
     
     
@@ -289,7 +300,17 @@ frappe.ui.form.on('Project Estimation Items', {
     cost_rate: function(frm, cdt, cdn) {
         // Trigger on Cost Rate change
         const row = locals[cdt][cdn];
+        setcalculations(frm, row);
         calculate_item_amount_for_costing(frm, row);
+        if(!row.rate && row.rate <= 0){
+            frappe.model.set_value(cdt, cdn, 'rate', row.cost_rate);
+        }
+        if (row.item_markup > 0){
+            var  new_cost_rate = row.cost_rate + (row.cost_rate * (row.item_markup/100));
+            frappe.model.set_value(row.doctype, row.name, 'rate', new_cost_rate);
+        }else{
+            frappe.model.set_value(row.doctype, row.name, 'rate', row.cost_rate);
+        }
     },
     amount: function(frm, cdt, cdn) {
         const row = locals[cdt][cdn];
@@ -306,7 +327,7 @@ frappe.ui.form.on('Project Estimation Items', {
         console.log("inside man power hours")
         row.labour_cost_per_unit = row.total_man_power_hours * row.billing_rate;
         frappe.model.set_value(row.doctype, row.name,'labour_cost_per_unit', row.labour_cost_per_unit);
-        
+
         setcalculations(frm,row);
         if( parseInt(frm.estimated_duration)>0){
             row.per_day_est_hours = parseFloat(row.total_man_power_hours) / parseInt(frm.estimated_duration);   

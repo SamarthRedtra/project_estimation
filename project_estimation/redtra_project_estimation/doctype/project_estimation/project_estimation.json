@@ -29,11 +29,13 @@
   "total_hours",
   "overhead",
   "ovehead_value",
+  "total_line_markup",
   "column_break_ofsk",
   "total_material_cost_cost",
   "total_labour_cost_cost",
   "total_amount_cost",
   "total_estimated_amount_cost",
+  "profit",
   "column_break_fhwz",
   "total_material_cost",
   "total_labour_cost",
@@ -247,6 +249,18 @@
    "fieldtype": "Tab Break",
    "label": "Connections",
    "show_dashboard": 1
+  },
+  {
+   "fieldname": "total_line_markup",
+   "fieldtype": "Currency",
+   "label": "Total Line Markup",
+   "read_only": 1
+  },
+  {
+   "fieldname": "profit",
+   "fieldtype": "Currency",
+   "label": "Profit",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -262,7 +276,7 @@
    "link_fieldname": "custom_project_estimation"
   }
  ],
- "modified": "2025-03-07 03:37:09.140053",
+ "modified": "2025-03-11 22:06:13.488246",
  "modified_by": "Administrator",
  "module": "Redtra Project Estimation",
  "name": "Project Estimation",

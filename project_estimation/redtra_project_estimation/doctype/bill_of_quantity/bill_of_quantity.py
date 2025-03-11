@@ -112,3 +112,31 @@ def make_budget(source_name, target_doc=None):
 
 		
     	
+
+
+@frappe.whitelist()
+def make_sales_invoice(source_name, target_doc=None, args=None):
+	doc = frappe.get_doc("Bill of Quantity", source_name)
+	doc = get_mapped_doc(
+		"Bill of Quantity",
+		source_name,
+		{
+			"Bill of Quantity": {
+				"doctype": "Sales Invoice",
+				"field_map": {"is_return": "is_return"},
+				"validation": {"docstatus": ["=", 1]},
+			},
+			"Project Estimation Items": {
+				"doctype": "Sales Invoice Item",
+				"field_map": {
+					"item": "item_code",
+					"quantity": "qty",
+					"rate": "rate",
+					"amount": "amount",
+				},
+			},
+		},
+		target_doc,
+	)
+	return doc
+
