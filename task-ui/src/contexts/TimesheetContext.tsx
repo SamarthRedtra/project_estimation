@@ -1,15 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Project, ProjectTask, Activity, TimeEntry, Timesheet,  } from '@/lib/mockData';
-import { getTodayDate, formatDecimalHours,convertTimeToDateTime } from '@/lib/timeUtils';
+import React, { createContext, useContext, useState, useEffect, ReactNode, use } from 'react';
+import { Project, ProjectTask, Activity, TimeEntry, Timesheet, } from '@/lib/mockData';
+import { getTodayDate, formatDecimalHours,getFormattedDateTime,getFormattedDateOnly } from '@/lib/timeUtils';
 import { toast } from 'sonner';
 import { useUser } from '@/contexts/UserContext';
-
 // Add this import at the top
-import { useFrappeAuth, useFrappeGetCall, useFrappeGetDoc, FrappeContext ,useFrappeGetDocList, useFrappePostCall, useFrappePrefetchCall } from 'frappe-react-sdk';
-
-// Add this import at the top
-import { Loader } from '@/components/Loader'; // Assuming you have a Loader component
-
+import { useFrappeAuth, FrappeContext, useFrappeGetDocList } from 'frappe-react-sdk';
 // Context types
 interface TimesheetContextType {
   projects: Project[];
@@ -21,7 +16,7 @@ interface TimesheetContextType {
   selectedProject: Project | null;
   selectedTask: ProjectTask | null;
   selectedActivity: Activity | null;
-  
+
   // Actions
   selectProject: (projectId: string) => void;
   selectTask: (taskId: string) => void;
@@ -43,7 +38,7 @@ const TimesheetContext = createContext<TimesheetContextType | undefined>(undefin
 
 // Provider component
 import { useDispatch, useSelector } from 'react-redux';
-import { 
+import {
   setCurrentTimesheet as setCurrentTimesheetStore,
   updateCurrentTimesheet as updateCurrentTimesheetStore,
   setTimesheetLoading as setCurrentTimesheetLoading,
@@ -53,46 +48,66 @@ import { RootState } from '@/store';
 
 // Add these imports at the top
 import { useFrappeCreateDoc, useFrappeUpdateDoc } from 'frappe-react-sdk';
+import { get } from 'http';
 
 export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Add these near the top of the component with other hooks
   const { createDoc } = useFrappeCreateDoc();
   const { user } = useUser();
   const { updateDoc } = useFrappeUpdateDoc();
-  const { call,} = useContext(FrappeContext) as any;
+  const { call, } = useContext(FrappeContext) as any;
 
-  const {data:timesheet_data}= useFrappeGetDocList('Timesheet', {
+  const { data: timesheet_data } = useFrappeGetDocList('Timesheet', {
     fields: ['*'],
     filters: [
       ['employee', '=', user?.employeeId || ''],
       ['start_date', '<=', getTodayDate()],
       ['end_date', '>=', getTodayDate()],
-    ['docstatus','<',1]
+      ['docstatus', '=', 0]
     ]
   });
 
-  
+
 
 
   const dispatch = useDispatch();
-  const { projects, activities, isLoading,  } = useSelector((state: RootState) => state.timesheet);
+  const { projects, activities, isLoading, } = useSelector((state: RootState) => state.timesheet);
   const { currentTimesheet: storeTimesheet } = useSelector((state: RootState) => state.currentTimesheet);
-  
-  
-  const set_timesheet = async (name:string) => {
-    const timesheet = await call.get('project_estimation.api.get_timesheet_doc', {
-      name: name
-    });
-    console.log(timesheet,'timesheet',storeTimesheet)
-    dispatch(setCurrentTimesheetStore({...timesheet.message,id:timesheet.message.name}));
-    console.log(timesheet,'timesheet',storeTimesheet)
-    setCurrentTimesheet({...timesheet.message,id:timesheet.message.name});
-  }
- 
+
+
+  // setting the timesheet store if not already set from backend
+  const set_timesheet = async (name: string) => {
+    try {
+        const timesheet = await call.get('project_estimation.api.get_timesheet_doc', { name });
+        
+        if (!timesheet?.message) {
+            console.error('Invalid timesheet response:', timesheet);
+            return;
+        }
+
+        const updatedTimesheet = {
+            ...timesheet.message,
+            time_logs: timesheet.message.time_logs.map((log: any) => ({
+                ...log,
+                ofrom_time: log.from_time,
+                oto_time: log.to_time,
+                from_time: log.from_time ? log.from_time.toString().split(' ')[1] : null,
+                to_time: log.to_time ? log.to_time.toString().split(' ')[1].split(".")[0] : null,
+            }))
+        };
+
+        dispatch(setCurrentTimesheetStore({ ...updatedTimesheet, id: updatedTimesheet.name }));
+        console.log('Updated Timesheet:', updatedTimesheet);
+    } catch (error) {
+        console.error('Error fetching timesheet:', error);
+    }
+};
+
+
 
   // Convert projects object to array and format it correctly
   const projectsArray = Object.values(projects);
-  
+
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [selectedTask, setSelectedTask] = useState<ProjectTask | null>(null);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
@@ -101,14 +116,12 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
   const [timesheetHistory, setTimesheetHistory] = useState<Timesheet[]>([]);
 
   useEffect(() => {
-
     if (timesheet_data?.length) {
       set_timesheet(timesheet_data[0].name);
-
     }
     else if (storeTimesheet) {
       setCurrentTimesheet(storeTimesheet);
-    }  else if (!currentTimesheet && user) {
+    } else if (!currentTimesheet && user) {
       const newTimesheet: Timesheet = {
         id: `ts-${Date.now()}`,
         date: getTodayDate(),
@@ -123,8 +136,8 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
       dispatch(setCurrentTimesheetStore(newTimesheet));
     }
   }, [user, timesheet_data]);
-  
-  
+
+
   // Add selectActivity implementation
   const selectActivity = (activityName: string) => {
     const activity = activities.find(a => a.name === activityName);
@@ -137,7 +150,7 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
     const project = projects[projectId];
     if (project) {
       setSelectedProject(project);
-      
+
       // Reset task selection and set first task if available
       if (project.tasks && project.tasks.length > 0) {
         setSelectedTask(project.tasks[0]);
@@ -146,10 +159,10 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
       }
     }
   };
-  
+
   const selectTask = (taskSubject: string) => {
     if (!selectedProject?.tasks) return;
-    
+
     const task = selectedProject.tasks.find(t => t.name === taskSubject);
     if (task) {
       setSelectedTask(task);
@@ -161,10 +174,16 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
       toast.error('Please select a project, task, and activity');
       return;
     }
-    
+
     const now = new Date();
     const timeString = now.toTimeString().split(' ')[0];
-    
+
+    // Start global timer if this is the first task
+    if (!localStorage.getItem('globalTimerStartTime')) {
+      localStorage.setItem('globalTimerStartTime', now.toISOString());
+      localStorage.setItem('isTimerActive', 'true');
+    }
+
     setActiveTimer({
       id: `entry-${Date.now()}`,
       project: selectedProject.name,
@@ -176,38 +195,62 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
       to_time: null,
       duration: 0,
       description: notes,
-      is_billable: true
+      is_billable: true,
+      ofrom_time:null,
+      oto_time:null
     });
-    
+    // Save to localStorage
+    localStorage.setItem('activeTimer', JSON.stringify(activeTimer));
+    // Update timesheet
+    if (storeTimesheet && activeTimer) {
+      console.log('Store_timesheet')
+      const updatedtime_logs = [...storeTimesheet.time_logs, activeTimer];
+      const totalSeconds = updatedtime_logs.reduce((total, entry) => total + (entry?.duration || 0), 0);
+      const updatedTimesheet = {
+        ...storeTimesheet,
+        time_logs: updatedtime_logs.filter((entry): entry is TimeEntry => entry !== null),
+        totalHours: formatDecimalHours(totalSeconds)
+      };
+      dispatch(updateCurrentTimesheetStore(updatedTimesheet));
+    }
+
     toast.success('Timer started');
   };
- 
+
   const discardTimer = () => {
     setActiveTimer(null);
     toast.info('Timer discarded');
   };
-  
+
   const addEntry = async (entry: TimeEntry) => {
     if (!storeTimesheet) return;
-    
+
     const updatedtime_logs = [...storeTimesheet.time_logs, entry];
     const totalSeconds = updatedtime_logs.reduce((total, entry) => total + entry.duration, 0);
-    
+
     const updatedTimesheet = {
       ...storeTimesheet,
       time_logs: updatedtime_logs,
       totalHours: formatDecimalHours(totalSeconds)
     };
-    
+
     // Create new timesheet if this is the first entry, otherwise update
     await handleTimesheetOperation(updatedTimesheet, storeTimesheet.time_logs.length === 0);
     toast.success('Entry added');
   };
+  
 
-  // Add this function before the other operation functions
-  const handleTimesheetOperation = async (timesheet: Timesheet, isNew: boolean = false) => {
+  // Add this utility function at the top of the file
+  const convertToTimezone = (date: Date, timezone: string) => {
+    return new Date(date.toLocaleString('en-US', { timeZone: timezone }));
+  };
+  
+  // Update the handleTimesheetOperation function
+  const handleTimesheetOperation = async (timesheet: Timesheet, isNew: boolean = false, isSubmit:boolean = false) => {
     dispatch(setCurrentTimesheetLoading(true));
     try {
+      const userTimezone = JSON.parse(localStorage.getItem('user') || '{}').timezone || 'Asia/Kolkata';
+  
       if (isNew) {
         const response = await createDoc(
           'Timesheet',
@@ -215,71 +258,76 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
             doctype: 'Timesheet',
             employee: timesheet.employee,
             date: timesheet.date,
+            start_date: getFormattedDateOnly(new Date(),userTimezone),
             parent_project: timesheet.parent_project,
             customer: timesheet.customer,
             time_logs: timesheet.time_logs.map(entry => {
+              // Convert times to user's timezone
               const fromDate = new Date();
               const [fromHours, fromMinutes, fromSeconds] = entry.from_time.split(':');
               fromDate.setHours(parseInt(fromHours), parseInt(fromMinutes), parseInt(fromSeconds));
-
-              let toDate;
-              if (entry.to_time) {
-                toDate = new Date();
-                const [toHours, toMinutes, toSeconds] = entry.to_time.split(':');
-                toDate.setHours(parseInt(toHours), parseInt(toMinutes), parseInt(toSeconds));
-              }
-
+              const tzFromDate = getFormattedDateTime(fromDate,userTimezone);
+  
               return {
                 activity_type: entry.activity_type,
-                from_time: fromDate.toISOString().replace('Z', ''),
-                to_time: toDate ? toDate.toISOString().replace('Z', '') : null,
+                from_time: tzFromDate,
+                to_time: getFormattedDateTime(new Date(),userTimezone),
                 hours: entry.duration / 3600,
                 project: entry.project,
                 task: entry.task,
-                billable: entry.is_billable ? 1 : 0,
+                completed: 1,
+                is_billable: entry.is_billable ? 1 : 0,
                 description: entry.description
               };
             })
           }
         );
         dispatch(setCurrentTimesheetStore({ ...timesheet, id: response.name }));
-        setCurrentTimesheet({
-          ...timesheet,
-          id: response.name
-        });
-      } else {
+      }
+      else {
         await updateDoc('Timesheet', timesheet.id, {
           ...timesheet,
+          start_date: timesheet.date,
+          docstatus: isSubmit ? 1 : 0,
           time_logs: timesheet.time_logs.map((log) => {
+            if(!log.name.startsWith("Entry")){
+              return {
+                ...log,
+                from_time: log.ofrom_time,
+                to_time: log.oto_time,
+                ofrom_time: undefined,
+                oto_time: undefined
+              }
+            }
+            // Convert times to user's timezone
             const fromDate = new Date();
             const [fromHours, fromMinutes, fromSeconds] = log.from_time.split(':');
             fromDate.setHours(parseInt(fromHours), parseInt(fromMinutes), parseInt(fromSeconds));
-
-            let toDate;
+            const tzFromDate = getFormattedDateTime(fromDate,userTimezone);
+  
+            let tzToDate = null;
             if (log.to_time) {
-              toDate = new Date();
+              const toDate = new Date();
               const [toHours, toMinutes, toSeconds] = log.to_time.split(':');
               toDate.setHours(parseInt(toHours), parseInt(toMinutes), parseInt(toSeconds));
+              tzToDate = getFormattedDateTime(toDate,userTimezone);
             }
-
+  
             return {
               ...log,
               name: log.name.startsWith("Entry") ? undefined : log.name,
-              from_time: fromDate.toISOString().replace('Z', ''),
-              to_time: toDate ? toDate.toISOString().replace('Z', '') : undefined,
-              id: undefined
+              from_time: tzFromDate,
+              to_time: tzToDate ? tzToDate : null,
+              id: undefined,
+              completed: 1,
             };
           })
         });
         dispatch(updateCurrentTimesheetStore(timesheet));
-        setCurrentTimesheet({
-          ...timesheet
-        });
       }
     } catch (error: any) {
       console.error('Timesheet operation failed:', error);
       dispatch(setCurrentTimesheetError(error.message));
-      
       toast.error('Failed to save timesheet');
     } finally {
       dispatch(setCurrentTimesheetLoading(false));
@@ -289,24 +337,26 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
   // Modify stopTimer to use handleTimesheetOperation
   const stopTimer = async () => {
     if (!activeTimer || !storeTimesheet) return;
-    
+
     const now = new Date();
     const endTime = now.toTimeString().split(' ')[0];
-    
+    console.log(endTime, 'endTime')
+
     // Calculate duration
     const start = new Date(`${activeTimer.date}T${activeTimer.from_time}`);
     const end = new Date(`${activeTimer.date}T${endTime}`);
+    console.log(start, 'start', 'end', end)
     const durationInSeconds = Math.floor((end.getTime() - start.getTime()) / 1000);
-    
+
     const completedEntry: TimeEntry = {
       ...activeTimer,
-      to_time: endTime,
-      duration: durationInSeconds
+      duration: durationInSeconds,
+      is_billable: true
     };
-    
+
     const updatedtime_logs = [...storeTimesheet.time_logs, completedEntry];
     const totalSeconds = updatedtime_logs.reduce((total, entry) => total + entry.duration, 0);
-    
+
     const updatedTimesheet = {
       ...storeTimesheet,
       time_logs: updatedtime_logs,
@@ -320,63 +370,127 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   const removeEntry = async (entryId: string) => {
     if (!storeTimesheet) return;
-    
+
     const updatedtime_logs = storeTimesheet.time_logs.filter(entry => entry.id !== entryId);
     const totalSeconds = updatedtime_logs.reduce((total, entry) => total + entry.duration, 0);
-    
+
     const updatedTimesheet = {
       ...storeTimesheet,
       time_logs: updatedtime_logs,
       totalHours: formatDecimalHours(totalSeconds)
     };
-    
+
     await handleTimesheetOperation(updatedTimesheet, false);
     toast.success('Entry removed');
   };
-  
-  const submitTimesheet = () => {
-    if (!currentTimesheet || currentTimesheet.time_logs.length === 0) {
-      toast.error('No time time_logs to submit');
+
+  // Restore state from localStorage
+  useEffect(() => {
+    const restoreState = () => {
+      try {
+        const savedProject = localStorage.getItem('selectedProject');
+        const savedTask = localStorage.getItem('selectedTask');
+        const savedActivity = localStorage.getItem('selectedActivity');
+        const savedTimer = localStorage.getItem('activeTimer');
+        const isTimerActive = localStorage.getItem('isTimerActive') === 'true';
+
+        if (savedProject) {
+          const project = JSON.parse(savedProject);
+          setSelectedProject(project);
+        }
+
+        if (savedTask) {
+          const task = JSON.parse(savedTask);
+          setSelectedTask(task);
+        }
+
+        if (savedActivity) {
+          const activity = JSON.parse(savedActivity);
+          setSelectedActivity(activity);
+        }
+
+        if (savedTimer && isTimerActive) {
+          const timer = JSON.parse(savedTimer);
+          setActiveTimer(timer);
+        }
+      } catch (error) {
+        console.error('Error restoring state:', error);
+      }
+    };
+
+    restoreState();
+  }, []);
+
+  // Store active timer when it changes
+  useEffect(() => {
+    if (activeTimer) {
+      localStorage.setItem('activeTimer', JSON.stringify(activeTimer));
+    } else {
+      localStorage.removeItem('activeTimer');
+    }
+  }, [activeTimer]);
+
+  // Modify submitTimesheet to clear all stored data
+  const submitTimesheet = async () => {
+    if (!storeTimesheet || storeTimesheet.time_logs.length === 0) {
+      toast.error('No time logs to submit');
       return;
     }
-    
-    // Simulate API submission
+
     const submittedTimesheet: Timesheet = {
-      ...currentTimesheet,
+      ...storeTimesheet,
       status: 'submitted',
       submittedAt: new Date().toISOString()
     };
-    
-    // Update history
-    setTimesheetHistory([submittedTimesheet, ...timesheetHistory]);
-    
-    // Create a new timesheet for today
-    setCurrentTimesheet({
-      id: `ts-${Date.now()}`,
-      date: getTodayDate(),
-      time_logs: [],
-      totalHours: 0,
-      name: `ts-${Date.now()}`,
-      status: 'draft',
-      parent_project: selectedProject?.name || '', // Add required parent_project field
-      employee: user?.employeeId || '', // Add required employee field
-      customer: selectedProject?.customer || '' // Add required customer field
-    });
-    
-    toast.success('Timesheet submitted successfully');
+
+    try {
+      await handleTimesheetOperation(submittedTimesheet, false, true);
+      
+      // Clear all localStorage data
+      localStorage.removeItem('selectedProject');
+      localStorage.removeItem('selectedTask');
+      localStorage.removeItem('selectedActivity');
+      localStorage.removeItem('activeTimer');
+      localStorage.removeItem('isTimerActive');
+      localStorage.removeItem('individualTimerStartTime');
+      localStorage.removeItem('globalTimerStartTime');
+      localStorage.removeItem('dailyTotalSeconds');
+      localStorage.removeItem('activeTaskId');
+
+      // Reset states
+      setSelectedProject(null);
+      setSelectedTask(null);
+      setSelectedActivity(null);
+      setActiveTimer(null);
+
+      // Create new timesheet
+      dispatch(setCurrentTimesheetStore({
+        id: `ts-${Date.now()}`,
+        date: getTodayDate(),
+        time_logs: [],
+        totalHours: 0,
+        name: `ts-${Date.now()}`,
+        status: 'draft',
+        parent_project: '',
+        employee: user?.employeeId || '',
+        customer: ''
+      }));
+
+      toast.success('Timesheet submitted successfully');
+    } catch (error) {
+      toast.error('Failed to submit timesheet');
+      console.error(error);
+    }
   };
 
   // Add Frappe auth state
-  const {  currentUser, isLoading: isLoadingAuth } = useFrappeAuth();
+  const { currentUser, isLoading: isLoadingAuth } = useFrappeAuth();
 
-  // Add auth methods
-
-  // Update context value
   const contextValue: TimesheetContextType = {
     projects: projectsArray,
     activities,
     isLoading,
-    currentTimesheet:storeTimesheet,
+    currentTimesheet: storeTimesheet,
     timesheetHistory,
     activeTimer,
     selectedProject,
@@ -394,7 +508,7 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
     isAuthenticated: !!currentUser,
     currentUser: currentUser || null,
     isLoadingAuth,
-  
+
     isAppLoading: isLoading || isLoadingAuth
   };
 
@@ -404,8 +518,6 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
     </TimesheetContext.Provider>
   );
 };
-
-
 
 
 // Custom hook

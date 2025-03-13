@@ -8,11 +8,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { useSelector } from'react-redux';
+import { TimeEntry} from '@/lib/mockData';
+import { RootState } from '@/store';
+
 
 export default function Timer() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [notes, setNotes] = useState('');
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const {currentTimesheet} = useSelector((state:RootState) => state.currentTimesheet);
   
   const { 
     activeTimer, 
@@ -21,26 +26,60 @@ export default function Timer() {
     selectedActivity,
     startTimer, 
     stopTimer, 
-    discardTimer 
+    discardTimer ,
+
   } = useTimesheet();
-  
-  // Start/stop interval based on activeTimer
+
+  // Initialize and resume individual timer
   useEffect(() => {
     if (activeTimer) {
-      // Calculate initial elapsed time if the timer was already running
-      if (activeTimer.from_time) {
-        const start = new Date(`${activeTimer.date}T${activeTimer.from_time}`);
+      const savedStartTime = localStorage.getItem('individualTimerStartTime');
+      const savedTaskId = localStorage.getItem('activeTaskId');
+      
+      if (savedStartTime && savedTaskId === activeTimer.id) {
+        const start = new Date(savedStartTime);
         const now = new Date();
         const initialElapsed = Math.floor((now.getTime() - start.getTime()) / 1000);
         setElapsedSeconds(initialElapsed > 0 ? initialElapsed : 0);
+        
+        intervalRef.current = setInterval(() => {
+          setElapsedSeconds(prev => prev + 1);
+        }, 1000);
       }
-      
-      // Start interval
-      intervalRef.current = setInterval(() => {
-        setElapsedSeconds(prev => prev + 1);
-      }, 1000);
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+
+  // Handle timer state changes
+  useEffect(() => {
+    if (activeTimer) {
+      if (activeTimer.from_time) {
+        const startTime = new Date();
+        const [hours, minutes, seconds] = activeTimer.from_time.split(':');
+        startTime.setHours(parseInt(hours), parseInt(minutes), parseInt(seconds));
+        
+        localStorage.setItem('individualTimerStartTime', startTime.toISOString());
+        localStorage.setItem('isTimerActive', 'true');
+        localStorage.setItem('activeTaskId', activeTimer.id);
+
+        if (!intervalRef.current) {
+          const now = new Date();
+          const initialElapsed = Math.floor((now.getTime() - startTime.getTime()) / 1000);
+          setElapsedSeconds(initialElapsed > 0 ? initialElapsed : 0);
+          
+          intervalRef.current = setInterval(() => {
+            const currentTime = new Date();
+            const elapsed = Math.floor((currentTime.getTime() - startTime.getTime()) / 1000);
+            setElapsedSeconds(elapsed);
+          }, 1000);
+        }
+      }
     } else {
-      // Clear interval and reset when not active
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
@@ -48,22 +87,39 @@ export default function Timer() {
       setElapsedSeconds(0);
       setNotes('');
     }
-    
-    // Cleanup
+
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
   }, [activeTimer]);
-  
+
+  // Store selected items when they change
+  useEffect(() => {
+    if (selectedProject && selectedTask && selectedActivity) {
+      localStorage.setItem('selectedProject', JSON.stringify(selectedProject));
+      localStorage.setItem('selectedTask', JSON.stringify(selectedTask));
+      localStorage.setItem('selectedActivity', JSON.stringify(selectedActivity));
+    }
+  }, [selectedProject, selectedTask, selectedActivity]);
+
+  const handleStop = async () => {
+    await stopTimer();
+    localStorage.removeItem('individualTimerStartTime');
+    localStorage.removeItem('activeTaskId');
+    
+    // Only remove isTimerActive if there are no other active timers
+    if (!currentTimesheet?.time_logs.some((log: { to_time: string | null }) => !log.to_time)) {
+      localStorage.removeItem('isTimerActive');
+    }
+  };
+
   const handleStart = () => {
     startTimer(notes);
   };
   
-  const handleStop = () => {
-    stopTimer();
-  };
+ 
   
   const handleDiscard = () => {
     discardTimer();
@@ -93,7 +149,12 @@ export default function Timer() {
       
       <CardContent className="p-4 space-y-4">
         {/* Timer display */}
-        <div className="flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center space-y-2">
+          {/* <div className="text-sm text-muted-foreground">Global Time Today</div>
+          <div className="text-2xl font-mono font-medium tracking-tight text-primary/70">
+            {formatTime(0)}
+          </div> */}
+          <div className="text-sm text-muted-foreground mt-4">Current Task</div>
           <div className={cn(
             "text-4xl font-mono font-medium tracking-tight transition-colors",
             activeTimer ? "text-primary" : "text-muted-foreground"

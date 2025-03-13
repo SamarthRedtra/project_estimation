@@ -35,9 +35,11 @@ export const formatDecimalHours = (seconds: number): number => {
 
 // Get today's date in YYYY-MM-DD format
 export const getTodayDate = (): string => {
-  const today = new Date();
-  return today.toISOString().split('T')[0];
+  const userTimezone = JSON.parse(localStorage.getItem('user') || '{}').timezone || 'Asia/Kolkata';
+  const today = new Date().toLocaleString('en-US', { timeZone: userTimezone });
+  return today.toLocaleLowerCase().split('T')[0];
 };
+
 
 // Format date to display format (e.g., Apr 3, 2025)
 export const formatDate = (dateString: string): string => {
@@ -47,6 +49,34 @@ export const formatDate = (dateString: string): string => {
     day: 'numeric',
     year: 'numeric'
   });
+};
+
+export const getFormattedDateOnly = (date:Date, timezone: string): string => {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(date));
+};
+
+export const getFormattedDateTime = (date:Date,timezone: string): string => {
+  const dateTimeParts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date(date));
+
+  // Manually format YYYY-MM-DD HH:mm:ss
+  const datePart = `${dateTimeParts[0].value}-${dateTimeParts[2].value}-${dateTimeParts[4].value}`;
+  const timePart = `${dateTimeParts[6].value}:${dateTimeParts[8].value}:${dateTimeParts[10].value}`;
+
+  return `${datePart} ${timePart}`;
 };
 
 // Format time for display (e.g., 09:45 AM)

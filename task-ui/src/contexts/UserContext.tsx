@@ -7,6 +7,7 @@ interface User {
   phone : string;
   company: string;
   employeeId : string;
+  timezone : string;
 }
 
 interface UserContextType {

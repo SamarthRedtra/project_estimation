@@ -45,6 +45,9 @@ export interface TimeEntry {
   duration: number;
   description: string;
   is_billable: boolean;
+  ofrom_time: string | null;
+  oto_time: string | null;
+
 }
 
 export interface Timesheet {

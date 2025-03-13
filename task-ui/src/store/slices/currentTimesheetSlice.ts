@@ -12,6 +12,8 @@ interface TimeEntry {
   description: string;
   is_billable: boolean;
   name: string;
+  ofrom_time: string | null;
+  oto_time: string | null;
 }
 
 interface Timesheet {

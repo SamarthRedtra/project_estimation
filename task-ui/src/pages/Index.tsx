@@ -14,6 +14,7 @@ import { Loader } from '@/components/Loader';
 import {  useUser } from '@/contexts/UserContext';
 import { useDispatch } from 'react-redux';
 import { setTimesheetData, setLoading, setError } from '@/store/slices/timesheetSlice';
+import { time } from 'console';
 
 const Index = () => {
   const dispatch = useDispatch();
@@ -48,6 +49,7 @@ const Index = () => {
         company:userInfo[6]? userInfo[6] : '',
         phone:userInfo[5]? userInfo[5] : '',
         employeeId:userInfo[7]? userInfo[7] : '',
+        timezone:userInfo[3]? userInfo[3] : '',
       };
       localStorage.setItem('user', JSON.stringify(user));
 

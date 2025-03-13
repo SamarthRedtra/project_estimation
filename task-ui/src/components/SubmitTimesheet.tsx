@@ -4,9 +4,24 @@ import { useTimesheet } from '@/contexts/TimesheetContext';
 import { Button } from '@/components/ui/button';
 import { Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
+
 
 export default function SubmitTimesheet() {
-  const { currentTimesheet, submitTimesheet, activeTimer } = useTimesheet();
+  const {  submitTimesheet, activeTimer } = useTimesheet();
+  const {currentTimesheet} = useSelector((state:RootState) => state.currentTimesheet);
+
+
+  const handleSubmit = async () => {
+    await submitTimesheet();
+    // Clear all timer data
+    localStorage.removeItem('globalTimerStartTime');
+    localStorage.removeItem('dailyTotalSeconds');
+    localStorage.removeItem('individualTimerStartTime');
+    localStorage.removeItem('isTimerActive');
+    localStorage.removeItem('activeTaskId');
+  };
   
   // If there are no time_logs, don't enable the submit button
   const hastime_logs = currentTimesheet && currentTimesheet.time_logs.length > 0;
@@ -25,7 +40,7 @@ export default function SubmitTimesheet() {
           hastime_logs ? "animate-pulse" : "opacity-50"
         )}
         disabled={!hastime_logs || !!activeTimer}
-        onClick={submitTimesheet}
+        onClick={handleSubmit}
       >
         <Send size={16} className="mr-2" />
         Submit Timesheet
