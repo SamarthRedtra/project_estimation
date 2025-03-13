@@ -30,7 +30,7 @@ def get_boq_and_allowed_quantity_to_purchase(item, project):
                 print('purchase_qty',purchase_qty)
                 total_quantity = boq_item.quantity - purchase_qty
                 return total_quantity
-    return None
+    return 0
 
 
 def get_purchase_quantity_for_item(item, project):
