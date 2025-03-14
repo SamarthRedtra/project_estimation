@@ -61,8 +61,8 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
     fields: ['*'],
     filters: [
       ['employee', '=', user?.employeeId || ''],
-      ['start_date', '<=', getTodayDate()],
-      ['end_date', '>=', getTodayDate()],
+      ['start_date', '<=', getFormattedDateOnly(new Date(), JSON.parse(localStorage.getItem('user') || '{}').timezone || 'Asia/Kolkata')],
+      ['end_date', '>=', getFormattedDateOnly(new Date(), JSON.parse(localStorage.getItem('user') || '{}').timezone || 'Asia/Kolkata')],
       ['docstatus', '=', 0]
     ]
   });
@@ -275,7 +275,6 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
                 hours: entry.duration / 3600,
                 project: entry.project,
                 task: entry.task,
-                completed: 1,
                 is_billable: entry.is_billable ? 1 : 0,
                 description: entry.description
               };
@@ -319,7 +318,6 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
               from_time: tzFromDate,
               to_time: tzToDate ? tzToDate : null,
               id: undefined,
-              completed: 1,
             };
           })
         });

@@ -48,9 +48,11 @@ export default function NavBar() {
 
   const navigationItems = [
     { name: 'Home', path: '/', icon: House },
-    { name: 'History', path: '/history', icon: HistoryIcon }, // Use HistoryIcon instead of History
+    { name: 'History', path: '/history', icon: HistoryIcon },
+    { name: 'Tasks', path: '/task-history', icon: ClipboardList }, // Use HistoryIcon instead of History
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Settings', path: '/settings', icon: Settings },
+    
   ];
 
   return (

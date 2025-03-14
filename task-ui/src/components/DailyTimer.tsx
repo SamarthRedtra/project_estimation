@@ -102,7 +102,7 @@ export default function DailyTimer() {
         clearInterval(intervalRef.current);
       }
     };
-  }, [currentTimesheet?.time_logs]);
+  }, [currentTimesheet?.time_logs,activeTimer]);
 
   // Update total when time_logs change
   useEffect(() => {

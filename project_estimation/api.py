@@ -78,3 +78,78 @@ def get_timesheet_doc(name):
         i['duration'] = i.get('hours') * 36000
         
     return res     
+
+
+
+@frappe.whitelist()
+def get_timesheet_records(fields, filters, orderBy, limit_start=0, limit=10, asDict=True):
+        orderBy = frappe.parse_json(orderBy) if orderBy else {}
+        filters = frappe.parse_json(filters) if filters else {}
+
+        # Ensure orderBy has valid field and order values
+        order_field = orderBy.get("field", "modified")  # Default field to sort by
+        order_type = orderBy.get("order", "desc")  # Default sorting order
+
+        # Fetch Timesheet records
+        timesheets = frappe.db.get_list(
+            "Timesheet",
+            fields=fields,
+            filters=filters,
+            order_by=f"{order_field} {order_type}",
+            limit_start=limit_start,
+            limit_page_length=limit,
+        )
+
+        # Fetch Timesheet Details for each Timesheet
+        if timesheets:
+            for timesheet in timesheets:
+                timesheet["times_logs"] = frappe.db.get_list(
+                    "Timesheet Detail",
+                    filters={"parent": timesheet["name"]},
+                    fields=["*"],
+                    parent_doctype="Timesheet"
+                )
+
+        return timesheets
+
+
+
+@frappe.whitelist()
+def get_task_records(fields=None, filters=None, orderBy=None, limit_start=0, limit=10, asDict=True):
+    """
+    Fetch Task records with optional filtering, ordering, and pagination.
+    Includes a condition where tasks completed by the current session user are included.
+    """
+
+    # Ensure inputs are parsed correctly
+    fields = frappe.parse_json(fields) if fields else ["name", "subject", "status"]
+    filters = frappe.parse_json(filters) if filters else []
+    orderBy = frappe.parse_json(orderBy) if orderBy else {}
+    filters.append(["_assign", "like", f"%{frappe.session.user}%"])
+
+    # Set default order by values
+    order_field = orderBy.get("field", "modified")
+    order_type = orderBy.get("order", "desc")
+
+    # Construct OR filter for user-specific tasks
+    or_filters = [
+        ["completed_by", "=",frappe.session.user],
+        ["status", "=", "Completed"]
+    ]
+
+    # Fetch records
+    tasks = frappe.db.get_list(
+        "Task",
+        fields=fields,
+        filters=filters,
+        order_by=f"`{order_field}` {order_type}",
+        start=limit_start,
+        page_length=limit,
+    )
+    
+    task2 = frappe.get_all('Task',filters=or_filters,fields=fields)
+    
+    tasks.extend(task2)
+    return tasks
+    
+    

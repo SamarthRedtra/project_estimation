@@ -10,6 +10,7 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
+import TaskHistory from "./pages/TaskHistory";
 import { UserProvider } from "@/contexts/UserContext";
 
 // Add this import
@@ -59,6 +60,7 @@ const App = () => {
                       <Route path="/history" element={<History />} />
                       <Route path="/dashboard" element={<Dashboard />} />
                       <Route path="/settings" element={<Settings />} />
+                      <Route path="/task-history" element={<TaskHistory />} />
                     </Route>
                     <Route path="*" element={<NotFound />} />
                   </Routes>
