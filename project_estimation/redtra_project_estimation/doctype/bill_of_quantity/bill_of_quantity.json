@@ -235,12 +235,14 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "total_line_markup",
    "fieldtype": "Currency",
    "label": "Total Line Markup",
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "profit",
    "fieldtype": "Currency",
    "label": "Profit",
@@ -250,7 +252,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-11 22:05:56.571974",
+ "modified": "2025-03-15 22:49:05.911429",
  "modified_by": "Administrator",
  "module": "Redtra Project Estimation",
  "name": "Bill of Quantity",

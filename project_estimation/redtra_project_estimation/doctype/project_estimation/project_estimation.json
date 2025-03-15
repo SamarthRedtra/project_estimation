@@ -251,12 +251,14 @@
    "show_dashboard": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "total_line_markup",
    "fieldtype": "Currency",
    "label": "Total Line Markup",
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "profit",
    "fieldtype": "Currency",
    "label": "Profit",
@@ -276,7 +278,7 @@
    "link_fieldname": "custom_project_estimation"
   }
  ],
- "modified": "2025-03-11 22:06:13.488246",
+ "modified": "2025-03-15 22:48:49.808626",
  "modified_by": "Administrator",
  "module": "Redtra Project Estimation",
  "name": "Project Estimation",
