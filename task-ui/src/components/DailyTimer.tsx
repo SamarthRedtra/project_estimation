@@ -48,7 +48,7 @@ export default function DailyTimer() {
       }
 
       setTotalSeconds(isTimerActive ?  elapsedSeconds : elapsedSeconds);
-
+     
       if (isTimerActive && !intervalRef.current) startTimer();
     } catch (error) {
       console.error('Error initializing timer:', error);

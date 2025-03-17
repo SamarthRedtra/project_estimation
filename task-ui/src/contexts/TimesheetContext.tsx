@@ -283,7 +283,7 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
               })
             }
           );
-          dispatch(setCurrentTimesheetStore({ ...timesheet, id: response.name }));
+          dispatch(setCurrentTimesheetStore({ ...response, id: response.name }));
         } catch (error: any) {
           if (error.httpStatus === 409) {
             toast.error('A timesheet already exists for this period');
