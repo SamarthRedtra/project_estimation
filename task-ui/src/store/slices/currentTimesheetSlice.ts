@@ -14,6 +14,7 @@ interface TimeEntry {
   name: string;
   ofrom_time: string | null;
   oto_time: string | null;
+  completed:  0|1;
 }
 
 interface Timesheet {

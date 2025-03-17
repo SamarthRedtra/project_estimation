@@ -62,7 +62,6 @@ const Index = () => {
 
   if (error) {
     console.error(error);
-    return <div>Error loading user information</div>;
   }
 
   return (
@@ -70,20 +69,26 @@ const Index = () => {
       <div className="min-h-screen bg-background flex flex-col animate-in">
         <NavBar />
         
-        <main className="flex-1 container max-w-md mx-auto pt-14 pb-4 px-3">
-          <DailyTimer />
-          
-          <div className="grid grid-cols-1 gap-3 mt-3">
-            <div className="space-y-3">
-              <ProjectList />
-              <TaskSelection />
-              <ActivitySelector />
-              <Timer />
+        <main className={`flex-1 container max-w-md mx-auto pt-14 pb-4 px-3 ${error ? 'flex items-center justify-center': ''}`}>
+          {error ? (
+            <div className="p-4 rounded-md bg-red-50 border border-red-200 w-full">
+              <p className="text-red-700 text-center font-medium">No Employee is mapped to this user</p>
             </div>
-            
-            <CompletedActivities />
-            <SubmitTimesheet />
-          </div>
+          ) : (
+            <>
+              <DailyTimer />
+              <div className="grid grid-cols-1 gap-3 mt-3">
+                <div className="space-y-3">
+                  <ProjectList />
+                  <TaskSelection />
+                  <ActivitySelector />
+                  <Timer />
+                </div>
+                <CompletedActivities />
+                <SubmitTimesheet />
+              </div>
+            </>
+          )}
         </main>
       </div>
     </TimesheetProvider>

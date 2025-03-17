@@ -75,7 +75,7 @@ def get_all_details_of_projects_assigned(user):
 def get_timesheet_doc(name):
     res = frappe.get_doc("Timesheet",name).as_dict()
     for i in res.time_logs:
-        i['duration'] = i.get('hours') * 36000
+        i['duration'] = i.get('hours') * 3600
         
     return res     
 

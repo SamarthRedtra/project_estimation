@@ -1,1 +1,0 @@
-if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/assets/project_estimation/task-ui/sw.js', { scope: '/assets/project_estimation/task-ui/' })})}

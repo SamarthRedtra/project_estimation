@@ -1,32 +1,45 @@
-import React ,{useState} from 'react';
+import React ,{useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader } from '@/components/Loader';
 import { useFrappeAuth } from 'frappe-react-sdk';
 import { Eye, EyeOff } from 'lucide-react';
+import RedtraLogo from '/redtra-logo.png';
+import { toast } from 'sonner';
+
 
 
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login, isLoading } = useFrappeAuth();
+  const { login, isLoading , currentUser} = useFrappeAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (currentUser) {
+      navigate("/");
+    }
+  }, []);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     try {
       await login({
         username: email,
         password,
       });
       navigate("/");
+      toast.success("Login successful");
     } catch (error: any) {
+      setError("Invalid credentials. Please check your username and password.");
+      console.error(error);
+      toast.error("Login failed");
+      return;
     }
-
-    navigate('/');
   };
 
   if (isLoading) {
@@ -38,7 +51,7 @@ export default function Login() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <img
           className="ml-12 h-16 w-auto"
-          src="/redtra-logo.png"
+          src={RedtraLogo}
           alt="Redtra"
         />
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -48,6 +61,11 @@ export default function Login() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {error && (
+            <div className="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
+              {error}
+            </div>
+          )}
           <form className="space-y-6">
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700">

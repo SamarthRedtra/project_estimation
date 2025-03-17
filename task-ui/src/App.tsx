@@ -10,6 +10,8 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
+import { useEffect } from'react';
+import InstallPWA from "./components/InstallPrompt";
 import TaskHistory from "./pages/TaskHistory";
 import { UserProvider } from "@/contexts/UserContext";
 
@@ -41,7 +43,25 @@ const queryClient = new QueryClient({
   },
 });
 
+const askNotificationPermission = async () => {
+  if ("Notification" in window && "serviceWorker" in navigator) {
+    const permission = await Notification.requestPermission();
+
+    if (permission === "granted") {
+      console.log("Notification permission granted.");
+    } else {
+      console.log("Notification permission denied.");
+    }
+  }
+};
+
+
 const App = () => {
+
+  useEffect(() => {
+    askNotificationPermission();
+  }, []);
+
   return (
     <StrictMode>
       <Provider store={store}>
@@ -50,8 +70,9 @@ const App = () => {
             <TooltipProvider>
               <UserProvider>
                 <Toaster />
+                <InstallPWA />
                 <Sonner position="top-center" />
-                <BrowserRouter>
+                <BrowserRouter basename="task-ui">
                   <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route element={<ProtectedRoute />}>

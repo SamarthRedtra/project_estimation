@@ -39,7 +39,7 @@ const [pendingStatusUpdate, setPendingStatusUpdate] = useState({ taskId: '', new
     let filters = [];
 
     if (statusFilter !== 'all') filters.push(['status', '=', statusFilter]);
-    if (searchQuery) filters.push(['name', 'like', `%${searchQuery}%`]);
+    if (searchQuery) filters.push(['subject', 'like', `%${searchQuery}%`]);
 
     return filters;
   };
@@ -214,18 +214,31 @@ const [pendingStatusUpdate, setPendingStatusUpdate] = useState({ taskId: '', new
                           </DialogTrigger>
                           <DialogContent className="max-w-2xl max-h-[90vh] p-0">
                             <DialogHeader className="px-6 py-4 border-b">
-                              <DialogTitle>Task Details</DialogTitle>
+                              <DialogTitle>
+                                <div className='flex justify-start gap-2'>
+                                    <span>Task Details</span>
+                                </div>
+                              </DialogTitle>
+                            
                             </DialogHeader>
                             <ScrollArea className="max-h-[calc(90vh-8rem)]">
                               <div className="px-6 py-4">
+                              
                                 <div className="space-y-6">
+                                
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className='w-full'>
+                                    <Badge variant="outline"  className={status.className}>
+                                        {status.label}
+                                     </Badge>
+                                    </div>
+                                   
                                     <div>
                                       <h4 className="font-medium mb-3">Basic Details</h4>
                                       <div className="space-y-3 bg-muted/30 rounded-lg p-4">
                                         <div>
                                           <span className="text-sm text-muted-foreground">Task ID</span>
-                                          <p className="text-sm font-medium">{task.name}</p>
+                                          <p className="text-sm font-medium">{task.name} </p>
                                         </div>
                                         <div>
                                           <span className="text-sm text-muted-foreground">Project</span>
@@ -237,7 +250,7 @@ const [pendingStatusUpdate, setPendingStatusUpdate] = useState({ taskId: '', new
                                             <Select
                                               value={task.status}
                                               onValueChange={(value) => handleStatusChange(task.name, value)}
-                                              disabled={task.status === 'Completed'}
+                                              disabled={true}
                                             >
                                               <SelectTrigger className="w-full">
                                                 <SelectValue />
@@ -273,7 +286,9 @@ const [pendingStatusUpdate, setPendingStatusUpdate] = useState({ taskId: '', new
                                         </div>
                                       </div>
                                     </div>
+                                
                                   </div>
+                                  
                                 </div>
                               </div>
                             </ScrollArea>

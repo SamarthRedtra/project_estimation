@@ -1,4 +1,5 @@
 
+
 // Format seconds to HH:MM:SS
 export const formatTime = (seconds: number): string => {
   const hours = Math.floor(seconds / 3600);
@@ -14,6 +15,7 @@ export const formatTime = (seconds: number): string => {
 
 // Format seconds to "X hours Y minutes"
 export const formatDuration = (seconds: number): string => {
+  console.log(seconds)
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   

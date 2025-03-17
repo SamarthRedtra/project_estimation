@@ -20,30 +20,43 @@ export default function DailyTimer() {
     const savedDailyTotal = localStorage.getItem('dailyTotalSeconds');
     const savedStartTime = localStorage.getItem('globalTimerStartTime');
     const isAnyTimerActive = localStorage.getItem('isTimerActive') === 'true';
+   
 
-    if (isAnyTimerActive && savedStartTime) {
-      const start = new Date(savedStartTime);
-      const now = new Date();
-      const initialElapsed = Math.floor((now.getTime() - start.getTime()) / 1000);
-      const totalTime = savedDailyTotal ? parseInt(savedDailyTotal) : 0;
-      
-      setTotalSeconds(Math.max(initialElapsed, totalTime));
+    if ((isAnyTimerActive && savedStartTime) || activeTimer) {
+      try {
+        const start = new Date(savedStartTime || new Date().toISOString());
+        const now = new Date();
+        const initialElapsed = Math.floor((now.getTime() - start.getTime()) / 1000);
+        const totalTime = savedDailyTotal && !isNaN(Number(savedDailyTotal))? parseInt(savedDailyTotal) : 0;
+        if (!isNaN(initialElapsed) && !isNaN(totalTime)) {
+          setTotalSeconds(Math.max(initialElapsed, totalTime));
 
-      intervalRef.current = setInterval(() => {
-        setTotalSeconds(prev => {
-          const newTotal = prev + 1;
-          localStorage.setItem('dailyTotalSeconds', newTotal.toString());
-          return newTotal;
-        });
-      }, 1000);
+          if (!intervalRef.current) {
+            intervalRef.current = setInterval(() => {
+              setTotalSeconds(prev => {
+                const newTotal = prev + 1;
+                localStorage.setItem('dailyTotalSeconds', newTotal.toString());
+                return newTotal;
+              });
+            }, 1000);
+          }
+        } else {
+          console.error('Invalid timer values detected');
+          setTotalSeconds(0);
+        }
+      } catch (error) {
+        console.error('Error initializing timer:', error);
+        setTotalSeconds(0);
+      }
     }
 
     return () => {
-      if (intervalRef.current) {
+      if (intervalRef.current && !activeTimer) {
         clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     };
-  }, [activeTimer]);
+  }, []);
 
   // Initialize global timer on first task
   useEffect(() => {
@@ -75,11 +88,18 @@ export default function DailyTimer() {
         const now = new Date();
         const elapsedSeconds = Math.floor((now.getTime() - startTime.getTime()) / 1000);
         
+        const timeLogsTotal = currentTimesheet.time_logs.reduce((total: number, entry: { duration: number; }) => {
+          const duration = entry.duration || 0;
+          return total + Math.floor(duration);
+        }, 0);
+
+        const validElapsed = !isNaN(elapsedSeconds) ? elapsedSeconds : 0;
+        const validSavedTotal = savedTotal ? parseInt(savedTotal) : 0;
+        
         setTotalSeconds(Math.max(
-          elapsedSeconds,
-          savedTotal ? parseInt(savedTotal) : 0,
-          currentTimesheet.time_logs.reduce((total: number, entry: { duration: number; }) => 
-            total + Math.floor(entry.duration), 0)
+          validElapsed,
+          !isNaN(validSavedTotal) ? validSavedTotal : 0,
+          !isNaN(timeLogsTotal) ? timeLogsTotal : 0
         ));
 
         // Start or resume interval
@@ -102,7 +122,7 @@ export default function DailyTimer() {
         clearInterval(intervalRef.current);
       }
     };
-  }, [currentTimesheet?.time_logs,activeTimer]);
+  }, [currentTimesheet?.time_logs, activeTimer]);
 
   // Update total when time_logs change
   useEffect(() => {

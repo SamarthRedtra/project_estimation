@@ -22,7 +22,7 @@ interface TimesheetContextType {
   selectTask: (taskId: string) => void;
   selectActivity: (activityId: string) => void;
   startTimer: (notes?: string) => void;
-  stopTimer: () => void;
+  stopTimer: (isTaskComplete:boolean) => void;
   discardTimer: () => void;
   addEntry: (entry: TimeEntry) => void;
   removeEntry: (entryId: string) => void;
@@ -49,6 +49,7 @@ import { RootState } from '@/store';
 // Add these imports at the top
 import { useFrappeCreateDoc, useFrappeUpdateDoc } from 'frappe-react-sdk';
 import { get } from 'http';
+
 
 export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Add these near the top of the component with other hooks
@@ -197,7 +198,8 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
       description: notes,
       is_billable: true,
       ofrom_time:null,
-      oto_time:null
+      oto_time:null,
+      completed:0
     });
     // Save to localStorage
     localStorage.setItem('activeTimer', JSON.stringify(activeTimer));
@@ -252,88 +254,116 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
       const userTimezone = JSON.parse(localStorage.getItem('user') || '{}').timezone || 'Asia/Kolkata';
   
       if (isNew) {
-        const response = await createDoc(
-          'Timesheet',
-          {
-            doctype: 'Timesheet',
-            employee: timesheet.employee,
-            date: timesheet.date,
-            start_date: getFormattedDateOnly(new Date(),userTimezone),
-            parent_project: timesheet.parent_project,
-            customer: timesheet.customer,
-            time_logs: timesheet.time_logs.map(entry => {
-              // Convert times to user's timezone
+        try {
+          const response = await createDoc(
+            'Timesheet',
+            {
+              doctype: 'Timesheet',
+              employee: timesheet.employee,
+              date: timesheet.date,
+              start_date: getFormattedDateOnly(new Date(),userTimezone),
+              parent_project: timesheet.parent_project,
+              customer: timesheet.customer,
+              time_logs: timesheet.time_logs.map(entry => {
+                const fromDate = new Date();
+                const [fromHours, fromMinutes, fromSeconds] = entry.from_time.split(':');
+                fromDate.setHours(parseInt(fromHours), parseInt(fromMinutes), parseInt(fromSeconds));
+                const tzFromDate = getFormattedDateTime(fromDate,userTimezone);
+    
+                return {
+                  activity_type: entry.activity_type,
+                  from_time: tzFromDate,
+                  to_time: getFormattedDateTime(new Date(),userTimezone),
+                  hours: entry.duration / 3600,
+                  project: entry.project,
+                  task: entry.task,
+                  is_billable: entry.is_billable ? 1 : 0,
+                  description: entry.description
+                };
+              })
+            }
+          );
+          dispatch(setCurrentTimesheetStore({ ...timesheet, id: response.name }));
+        } catch (error: any) {
+          if (error.httpStatus === 409) {
+            toast.error('A timesheet already exists for this period');
+          } else if (error.httpStatus === 403) {
+            toast.error('You do not have permission to create timesheets');
+          } else if (error.message?.includes('ValidationError')) {
+            toast.error('Please check all required fields are filled correctly');
+          } else {
+            toast.error('Failed to create timesheet: ' + (error.message || 'Unknown error'));
+          }
+          throw error;
+        }
+      } else {
+        try {
+          const res = await updateDoc('Timesheet', timesheet.id, {
+            ...timesheet,
+            start_date: timesheet.date,
+            docstatus: isSubmit ? 1 : 0,
+            time_logs: timesheet.time_logs.map((log) => {
+              if(!log.name.startsWith("Entry")){
+                return {
+                  ...log,
+                  from_time: log.ofrom_time,
+                  to_time: log.oto_time,
+                  ofrom_time: undefined,
+                  oto_time: undefined
+                }
+              }
               const fromDate = new Date();
-              const [fromHours, fromMinutes, fromSeconds] = entry.from_time.split(':');
+              const [fromHours, fromMinutes, fromSeconds] = log.from_time.split(':');
               fromDate.setHours(parseInt(fromHours), parseInt(fromMinutes), parseInt(fromSeconds));
               const tzFromDate = getFormattedDateTime(fromDate,userTimezone);
-  
-              return {
-                activity_type: entry.activity_type,
-                from_time: tzFromDate,
-                to_time: getFormattedDateTime(new Date(),userTimezone),
-                hours: entry.duration / 3600,
-                project: entry.project,
-                task: entry.task,
-                is_billable: entry.is_billable ? 1 : 0,
-                description: entry.description
-              };
-            })
-          }
-        );
-        dispatch(setCurrentTimesheetStore({ ...timesheet, id: response.name }));
-      }
-      else {
-        await updateDoc('Timesheet', timesheet.id, {
-          ...timesheet,
-          start_date: timesheet.date,
-          docstatus: isSubmit ? 1 : 0,
-          time_logs: timesheet.time_logs.map((log) => {
-            if(!log.name.startsWith("Entry")){
+           
+              let tzToDate = null;
+              if (log.to_time) {
+                const toDate = new Date();
+                const [toHours, toMinutes, toSeconds] = log.to_time.split(':');
+                toDate.setHours(parseInt(toHours), parseInt(toMinutes), parseInt(toSeconds));
+                tzToDate = getFormattedDateTime(toDate,userTimezone);
+              }
+    
               return {
                 ...log,
-                from_time: log.ofrom_time,
-                to_time: log.oto_time,
-                ofrom_time: undefined,
-                oto_time: undefined
-              }
-            }
-            // Convert times to user's timezone
-            const fromDate = new Date();
-            const [fromHours, fromMinutes, fromSeconds] = log.from_time.split(':');
-            fromDate.setHours(parseInt(fromHours), parseInt(fromMinutes), parseInt(fromSeconds));
-            const tzFromDate = getFormattedDateTime(fromDate,userTimezone);
-  
-            let tzToDate = null;
-            if (log.to_time) {
-              const toDate = new Date();
-              const [toHours, toMinutes, toSeconds] = log.to_time.split(':');
-              toDate.setHours(parseInt(toHours), parseInt(toMinutes), parseInt(toSeconds));
-              tzToDate = getFormattedDateTime(toDate,userTimezone);
-            }
-  
-            return {
-              ...log,
-              name: log.name.startsWith("Entry") ? undefined : log.name,
-              from_time: tzFromDate,
-              to_time: tzToDate ? tzToDate : null,
-              id: undefined,
-            };
-          })
-        });
-        dispatch(updateCurrentTimesheetStore(timesheet));
+                name: log.name.startsWith("Entry") ? undefined : log.name,
+                from_time: tzFromDate,
+                to_time: tzToDate ? tzToDate : getFormattedDateTime(new Date(),userTimezone),
+                id: undefined,
+              };
+            })
+          });
+          console.log('res update', res )
+          let logs = res.time_logs.map((log:any) => ({...log, duration: Math.ceil(Math.abs(log.hours * 3600))}))
+          console.log(logs,"logs")
+          dispatch(updateCurrentTimesheetStore({...res,id: res.name, time_logs:logs }));
+        } catch (error: any) {
+          if (error.httpStatus === 404) {
+            toast.error('Timesheet not found. It may have been deleted');
+          } else if (error.httpStatus === 403) {
+            toast.error('You do not have permission to update this timesheet');
+          } else if (error.message?.includes('Cannot edit submitted timesheet')) {
+            toast.error('Cannot modify a submitted timesheet');
+          } else if (error.message?.includes('ValidationError')) {
+            toast.error('Please check all required fields are filled correctly');
+          } else {
+            toast.error('Failed to update timesheet: ' + (error.message || 'Unknown error'));
+          }
+          throw error;
+        }
       }
     } catch (error: any) {
       console.error('Timesheet operation failed:', error);
-      dispatch(setCurrentTimesheetError(error.message));
-      toast.error('Failed to save timesheet');
+      dispatch(setCurrentTimesheetError(error.message || 'An unexpected error occurred'));
+      throw error; // Re-throw to handle in the calling function
     } finally {
       dispatch(setCurrentTimesheetLoading(false));
     }
   };
 
   // Modify stopTimer to use handleTimesheetOperation
-  const stopTimer = async () => {
+  const stopTimer = async (isTaskComplete:boolean) => {
     if (!activeTimer || !storeTimesheet) return;
 
     const now = new Date();
@@ -349,7 +379,8 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
     const completedEntry: TimeEntry = {
       ...activeTimer,
       duration: durationInSeconds,
-      is_billable: true
+      is_billable: true,
+      completed: isTaskComplete ? 1: 0
     };
 
     const updatedtime_logs = [...storeTimesheet.time_logs, completedEntry];
@@ -363,15 +394,22 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
 
     await handleTimesheetOperation(updatedTimesheet, storeTimesheet.time_logs.length === 0);
     setActiveTimer(null);
+    setSelectedProject(null);
+    setSelectedTask(null);
+    setSelectedActivity(null);
     toast.success('Time entry saved');
+
+    localStorage.removeItem('individualTimerStartTime');
+    localStorage.removeItem('activeTaskId');
   };
 
   const removeEntry = async (entryId: string) => {
     if (!storeTimesheet) return;
 
-    const updatedtime_logs = storeTimesheet.time_logs.filter(entry => entry.id !== entryId);
+    const updatedtime_logs = storeTimesheet.time_logs.filter(entry => entry.name !== entryId);
     const totalSeconds = updatedtime_logs.reduce((total, entry) => total + entry.duration, 0);
 
+   
     const updatedTimesheet = {
       ...storeTimesheet,
       time_logs: updatedtime_logs,

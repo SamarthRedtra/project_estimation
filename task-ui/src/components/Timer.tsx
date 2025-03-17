@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, StopCircle, X, Timer as TimerIcon } from 'lucide-react';
+import { Play, Pause, StopCircle, X, Timer as TimerIcon, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatTime } from '@/lib/timeUtils';
 import { useTimesheet } from '@/contexts/TimesheetContext';
@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useSelector } from'react-redux';
 import { TimeEntry} from '@/lib/mockData';
 import { RootState } from '@/store';
@@ -16,6 +18,9 @@ import { RootState } from '@/store';
 export default function Timer() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [notes, setNotes] = useState('');
+  const [isStopDialogOpen, setIsStopDialogOpen] = useState(false);
+  const [isTaskComplete, setIsTaskComplete] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const {currentTimesheet} = useSelector((state:RootState) => state.currentTimesheet);
   
@@ -97,6 +102,7 @@ export default function Timer() {
 
   // Store selected items when they change
   useEffect(() => {
+    console.log(activeTimer,'actove')
     if (selectedProject && selectedTask && selectedActivity) {
       localStorage.setItem('selectedProject', JSON.stringify(selectedProject));
       localStorage.setItem('selectedTask', JSON.stringify(selectedTask));
@@ -105,14 +111,13 @@ export default function Timer() {
   }, [selectedProject, selectedTask, selectedActivity]);
 
   const handleStop = async () => {
-    await stopTimer();
-    localStorage.removeItem('individualTimerStartTime');
-    localStorage.removeItem('activeTaskId');
-    
-    // Only remove isTimerActive if there are no other active timers
-    if (!currentTimesheet?.time_logs.some((log: { to_time: string | null }) => !log.to_time)) {
-      localStorage.removeItem('isTimerActive');
-    }
+    setIsStopDialogOpen(true);
+  };
+
+  const handleConfirmStop = async () => {
+    await stopTimer(isTaskComplete);
+    setIsStopDialogOpen(false);
+    setIsTaskComplete(false);
   };
 
   const handleStart = () => {
@@ -227,17 +232,18 @@ export default function Timer() {
               variant="outline" 
               className="w-1/2"
               onClick={() => {
-                if (intervalRef.current) {
-                  clearInterval(intervalRef.current);
+                if (!isPaused) {
+                  clearInterval(intervalRef.current!);
                   intervalRef.current = null;
                 } else {
                   intervalRef.current = setInterval(() => {
                     setElapsedSeconds(prev => prev + 1);
                   }, 1000);
                 }
+                setIsPaused(!isPaused);
               }}
             >
-              {intervalRef.current ? (
+              {!isPaused ? (
                 <>
                   <Pause size={16} className="mr-2" />
                   Pause
@@ -257,6 +263,37 @@ export default function Timer() {
               <StopCircle size={16} className="mr-2" />
               Stop
             </Button>
+
+            <Dialog open={isStopDialogOpen} onOpenChange={setIsStopDialogOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Stop Timer</DialogTitle>
+                </DialogHeader>
+                <div className="py-4">
+                  <p className="text-sm text-muted-foreground mb-4">Are you sure you want to stop the timer?</p>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="complete"
+                      checked={isTaskComplete}
+                      onCheckedChange={(checked) => setIsTaskComplete(checked as boolean)}
+                    />
+                    <label
+                      htmlFor="complete"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Mark this task as complete
+                    </label>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsStopDialogOpen(false)}>Cancel</Button>
+                  <Button onClick={handleConfirmStop}>
+                    <Check className="mr-2 h-4 w-4" />
+                    Confirm
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
       </CardFooter>

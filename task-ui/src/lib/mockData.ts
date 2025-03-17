@@ -47,6 +47,7 @@ export interface TimeEntry {
   is_billable: boolean;
   ofrom_time: string | null;
   oto_time: string | null;
+  completed:  0|1;
 
 }
 

@@ -27,6 +27,7 @@ import { useUser } from '@/contexts/UserContext';
 import { useFrappeAuth } from 'frappe-react-sdk';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useNavigate } from 'react-router-dom';
+import RedtraLogo from '/redtra-logo.png';
 
 export default function NavBar() {
   const { user } = useUser();
@@ -34,7 +35,6 @@ export default function NavBar() {
   const navigate = useNavigate();
   const {logout} = useFrappeAuth();
 
-  console.log(user,'99')
 
   const handleLogout = async () => {
     try {
@@ -68,7 +68,7 @@ export default function NavBar() {
             <SheetContent side="left" className="w-64 p-0">
               <div className="h-full flex flex-col">
                 <div className="p-4 border-b">
-                  <img src="/redtra-logo.png" alt="Redtra" className="h-8" />
+                  <img src={RedtraLogo} alt="Redtra" className="h-8" />
                 </div>
                 <nav className="flex-1 p-2">
                   {navigationItems.map((item) => {
@@ -116,7 +116,7 @@ export default function NavBar() {
           </Sheet>
           
           <Link to="/" className="flex items-center space-x-2">
-            <img src="/redtra-logo.png" alt="Redtra" className="h-8" />
+            <img src={RedtraLogo} alt="Redtra" className="h-8" />
           </Link>
         </div>
 

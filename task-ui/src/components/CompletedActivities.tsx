@@ -31,7 +31,7 @@ export default function CompletedActivities() {
       <CardContent className="p-0 max-h-[200px] overflow-y-auto">
         <div className="divide-y">
           {currentTimesheet.time_logs.map((entry:TimeEntry) => (
-            <div key={entry.id + '14' + Date()} className="p-3 hover:bg-muted/30">
+            <div key={entry.name} className="p-3 hover:bg-muted/30">
               <div className="flex justify-between items-start mb-1">
                 <div className="flex flex-col">
                   <Badge variant="outline" className="mb-1 text-xs inline-flex w-fit">
@@ -44,7 +44,7 @@ export default function CompletedActivities() {
                   variant="ghost" 
                   size="icon"
                   className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                  onClick={() => removeEntry(entry.id)}
+                  onClick={() => removeEntry(entry.name)}
                 >
                   <Trash2 size={14} />
                   <span className="sr-only">Remove</span>
