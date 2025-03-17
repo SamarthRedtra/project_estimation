@@ -16,8 +16,10 @@ import { useDispatch } from 'react-redux';
 import { setTimesheetData, setLoading, setError } from '@/store/slices/timesheetSlice';
 import { time } from 'console';
 
+
 const Index = () => {
   const dispatch = useDispatch();
+  const { user,setUser } = useUser();
   const { data, error, isLoading } = useFrappeGetCall(
     'project_estimation.api.get_user_info'
   );
@@ -52,6 +54,7 @@ const Index = () => {
         timezone:userInfo[3]? userInfo[3] : '',
       };
       localStorage.setItem('user', JSON.stringify(user));
+      setUser(user);
 
     }
   }, [data]);

@@ -292,7 +292,7 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
           } else if (error.message?.includes('ValidationError')) {
             toast.error('Please check all required fields are filled correctly');
           } else {
-            toast.error('Failed to create timesheet: ' + (error.message || 'Unknown error'));
+            toast.error('Failed to create timesheet: ' + (error?.exception || 'Unknown error'));
           }
           throw error;
         }
@@ -337,7 +337,7 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
           console.log('res update', res )
           let logs = res.time_logs.map((log:any) => ({...log, duration: Math.ceil(Math.abs(log.hours * 3600))}))
           console.log(logs,"logs")
-          dispatch(updateCurrentTimesheetStore({...res,id: res.name, time_logs:logs }));
+          dispatch(updateCurrentTimesheetStore({...res,id: res.name, time_logs:logs , status: res.docstatus === 1? 'submitted' : 'draft'}));
         } catch (error: any) {
           if (error.httpStatus === 404) {
             toast.error('Timesheet not found. It may have been deleted');
@@ -348,7 +348,7 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
           } else if (error.message?.includes('ValidationError')) {
             toast.error('Please check all required fields are filled correctly');
           } else {
-            toast.error('Failed to update timesheet: ' + (error.message || 'Unknown error'));
+            toast.error('Failed to update timesheet: ' + (error?.exception || 'Unknown error'));
           }
           throw error;
         }
@@ -481,6 +481,8 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
 
     try {
       await handleTimesheetOperation(submittedTimesheet, false, true);
+
+   
       
       // Clear all localStorage data
       localStorage.removeItem('selectedProject');
