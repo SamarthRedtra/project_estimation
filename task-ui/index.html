@@ -8,7 +8,30 @@
   </head>
   <body>
     <div id="root"></div>
-		<script>window.csrf_token = '{{ frappe.session.csrf_token }}';</script>
+		<script>
+    window.csrf_token = '{{ frappe.session.csrf_token }}';
+      window.site_name = '{{ site_name }}'
+      if (!window.frappe) window.frappe = {}
+      window.app_name = "{{ app_name }}";
+      frappe.boot ={{ boot }};
+
+      async function fetchCSRFToken() {
+            try {
+              const response = await fetch('/api/method/project_estimation.www.task-ui.get_csrf_token');
+              const data = await response.json();
+              window.csrf_token = data.message;
+              console.log("CSRF Token:", window.csrf_token);
+            } catch (error) {
+              console.error("Error fetching CSRF token:", error);
+            }
+        }
+
+      fetchCSRFToken();
+    </script>
+
+
+
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
