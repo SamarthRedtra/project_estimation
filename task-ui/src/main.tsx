@@ -7,7 +7,7 @@ createRoot(document.getElementById("root")!).render(<App />);
 
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("/sw.js").then(
+      navigator.serviceWorker.register("/sw.js",{scope:'/task-ui/'}).then(
         (registration) => {
           console.log(
             "ServiceWorker registration successful with scope: ",
