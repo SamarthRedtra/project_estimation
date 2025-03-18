@@ -283,7 +283,9 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
               })
             }
           );
-          dispatch(setCurrentTimesheetStore({ ...response, id: response.name }));
+
+          let logss = response.time_logs.map((log:any) => ({...log,ofrom_time:log.from_time,oto_time: log.to_time, duration: Math.ceil(Math.abs(log.hours * 3600))}))
+          dispatch(setCurrentTimesheetStore({ ...response, time_logs: logss, id: response.name }));
         } catch (error: any) {
           if (error.httpStatus === 409) {
             toast.error('A timesheet already exists for this period');
@@ -335,7 +337,7 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
             })
           });
           console.log('res update', res )
-          let logs = res.time_logs.map((log:any) => ({...log, duration: Math.ceil(Math.abs(log.hours * 3600))}))
+          let logs = res.time_logs.map((log:any) => ({...log,ofrom_time:log.from_time,oto_time: log.to_time, duration: Math.ceil(Math.abs(log.hours * 3600))}))
           console.log(logs,"logs")
           dispatch(updateCurrentTimesheetStore({...res,id: res.name, time_logs:logs , status: res.docstatus === 1? 'submitted' : 'draft'}));
         } catch (error: any) {
