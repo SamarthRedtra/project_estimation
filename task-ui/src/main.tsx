@@ -7,16 +7,9 @@ createRoot(document.getElementById("root")!).render(<App />);
 
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("/sw.js",{scope:'/task-ui/'}).then(
-        (registration) => {
-          console.log(
-            "ServiceWorker registration successful with scope: ",
-            registration.scope
-          );
-        },
-        (err) => {
-          console.log("ServiceWorker registration failed: ", err);
-        }
-      );
+      navigator.serviceWorker.register('/assets/project_estimation/task-ui/sw.js', { scope: '/assets/project_estimation/task-ui/' })
+      .then(reg => console.log('Service Worker registered with scope:', reg.scope))
+      .catch(error => console.error('Service Worker registration failed:', error));
     });
   }
+ 
