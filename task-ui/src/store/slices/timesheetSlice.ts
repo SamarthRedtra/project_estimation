@@ -18,6 +18,7 @@ interface ProjectTask {
   progress: number;
   _assign: string[];
   subject: string;
+  activity_type: ActivityType[] | [];
 }
 
 interface Project extends Record<string, any> {
@@ -45,6 +46,7 @@ interface TimesheetState {
   employeedetails: string[];
   projects: Record<string, Project>;
   activities: ActivityType[];
+  activity_task_based:boolean;
   isLoading: boolean;
   error: string | null;
 }
@@ -54,6 +56,7 @@ const initialState: TimesheetState = {
   employeedetails: [],
   projects: {},
   activities: [],
+  activity_task_based:false,
   isLoading: false,
   error: null,
 };
@@ -63,7 +66,7 @@ const timesheetSlice = createSlice({
   initialState,
   reducers: {
     setTimesheetData: (state, action: PayloadAction<any>) => {
-      const { user, project_task_details, activity_type, employeedetails } = action.payload;
+      const { user, project_task_details, activity_type, employeedetails,activity_task_based } = action.payload;
       
       state.user = {
         email: user[0],
@@ -76,6 +79,7 @@ const timesheetSlice = createSlice({
       
       state.employeedetails = employeedetails;
       state.projects = project_task_details;
+      state.activity_task_based = activity_task_based;
       state.activities = activity_type;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {

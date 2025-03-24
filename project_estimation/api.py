@@ -22,8 +22,9 @@ def get_user_info(user=None):
             'Employee not found for user {0}'.format(user)
         ), frappe.DoesNotExistError)
         
-    
-    project_task_details = get_all_details_of_projects_assigned(user)
+    activity_task_based = frappe.db.get_single_value('Project Estimation Setting','enable_task_level_activity')
+
+    project_task_details = get_all_details_of_projects_assigned(user,activity_task_based)
     
     activity_type = frappe.get_all('Activity Type',{'disabled':0},['name','costing_rate','billing_rate'])
     
@@ -33,11 +34,11 @@ def get_user_info(user=None):
     user.append(employeedetails[0])
 
     
-    return {'employeedetails':employeedetails,'project_task_details':project_task_details,'activity_type':activity_type,'user':user}
+    return {'employeedetails':employeedetails,'project_task_details':project_task_details,'activity_type':activity_type,'user':user,'activity_task_based': True if activity_task_based else False}
     
 
 
-def get_all_details_of_projects_assigned(user):
+def get_all_details_of_projects_assigned(user,activity_task_based):
     # Fetch all tasks assigned to user in a single query
     tasks = frappe.get_all('Task',
         filters={
@@ -47,10 +48,9 @@ def get_all_details_of_projects_assigned(user):
         order_by='project'  # Optional: Sort by project for grouped results
     )
     # Organize tasks by project
-    
-    project_details = frappe.get_all("Project",{'name':['in',[i['project'] for i in tasks ]]},['name','project_name','expected_end_date','expected_start_date','status','is_active','percent_complete_method','percent_complete','customer'])
+        
+    project_details = frappe.get_all("Project",{'name':['in',[i['project'] for i in tasks ]]},['name','project_name','expected_end_date','expected_start_date','status','is_active','custom_project_estimation','percent_complete_method','percent_complete','customer'])
     project_details = {i['name']:i for i in project_details}
-    print(project_details,"00")
     
     projects = {}
     for task in tasks:
@@ -58,9 +58,14 @@ def get_all_details_of_projects_assigned(user):
         task_data = dict(task)
         
         task_data['_assign'] = frappe.parse_json(task_data.get('_assign')) if task_data.get('_assign') else []
+       
         
         # Handle unassigned to project
         project_name = task_data.get('project') or "Unassigned"
+        
+        
+        if activity_task_based:
+            task_data['activity_type'] = get_activity_for_task(task_data['name'],project_name)
         
         # Initialize project list if needed
         projects.setdefault(project_name, []).append(task_data)
@@ -77,7 +82,15 @@ def get_timesheet_doc(name):
     for i in res.time_logs:
         i['duration'] = i.get('hours') * 3600
         
-    return res     
+    return res   
+
+def get_activity_for_task(task,project):
+    boq = frappe.db.get_value('Bill of Quantity',fieldname='name',filters={'project':project})
+    print(task,project,boq)
+    if not boq:
+        return []
+    return  frappe.get_all('Project Estimation Items',filters={'parent':boq,'task':task},fields=['activity_type as name','costing_rate','billing_rate'])
+    
 
 
 

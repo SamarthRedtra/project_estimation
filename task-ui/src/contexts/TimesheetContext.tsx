@@ -31,6 +31,7 @@ interface TimesheetContextType {
   currentUser: string | null;
   isLoadingAuth: boolean;
   isAppLoading: boolean;
+  activity_task_based:boolean;
 }
 
 // Create context
@@ -72,7 +73,7 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
 
 
   const dispatch = useDispatch();
-  const { projects, activities, isLoading, } = useSelector((state: RootState) => state.timesheet);
+  const { projects, activities, isLoading, activity_task_based} = useSelector((state: RootState) => state.timesheet);
   const { currentTimesheet: storeTimesheet } = useSelector((state: RootState) => state.currentTimesheet);
 
 
@@ -548,7 +549,7 @@ export const TimesheetProvider: React.FC<{ children: ReactNode }> = ({ children 
     isAuthenticated: !!currentUser,
     currentUser: currentUser || null,
     isLoadingAuth,
-
+    activity_task_based,
     isAppLoading: isLoading || isLoadingAuth
   };
 

@@ -1,4 +1,4 @@
-frappe.form.on('Purchase Invoice Item', {
+frappe.ui.form.on('Purchase Invoice Item', {
     refresh:async function(frm, cdt, cdn) {
        const row = locals[cdt][cdn];
        if(frm.doc.supplier){

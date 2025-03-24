@@ -1,11 +1,13 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTimesheet } from '@/contexts/TimesheetContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Project, ProjectTask, Activity as ActivityT, TimeEntry, Timesheet, } from '@/lib/mockData';
 import { Activity } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 
 export default function ActivitySelector() {
   const { 
@@ -13,8 +15,26 @@ export default function ActivitySelector() {
     activities,
     selectActivity,
     isLoading,
-    activeTimer
+    activeTimer,
+    activity_task_based,
+    selectedTask,
   } = useTimesheet();
+  const [activitiess, setActivities] = useState<ActivityT[]>(activities);
+  const { projects } = useSelector((state:RootState) => state.timesheet);
+  useEffect(() => {
+    if (selectedTask && activity_task_based) {
+      const projectd = projects[selectedTask.project];
+      const task = projectd.tasks.find((task) => task.name === selectedTask.name);
+      console.log( activities ,activitiess);
+      if(task?.activity_type && task?.activity_type.length > 0) {
+        setActivities(task?.activity_type);
+      } else {
+        setActivities(activities);
+      }
+    } else {
+      setActivities(activities);
+    }
+  }, [selectedTask, projects, activities, activity_task_based]); 
   
   if (isLoading) {
     return (
@@ -53,12 +73,12 @@ export default function ActivitySelector() {
             <SelectValue placeholder="Select an activity" />
           </SelectTrigger>
           <SelectContent position="popper">
-            {activities.map((activity) => (
+            {activitiess.map((activity) => (
               <SelectItem key={activity.name} value={activity.name}>
                 {activity.name}
               </SelectItem>
             ))}
-          </SelectContent>
+          </SelectContent> 
         </Select>
       </CardContent>
     </Card>

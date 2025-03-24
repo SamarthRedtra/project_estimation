@@ -9,7 +9,8 @@
   "default_payable_account",
   "default_inventory_account",
   "column_break_utmj",
-  "material_check"
+  "material_check",
+  "enable_task_level_activity"
  ],
  "fields": [
   {
@@ -41,12 +42,19 @@
    "fieldname": "material_check",
    "fieldtype": "Check",
    "label": "Enable Material Budget Check"
+  },
+  {
+   "default": "0",
+   "description": "If check the in mobile app task related activity only shown is project estimated is created",
+   "fieldname": "enable_task_level_activity",
+   "fieldtype": "Check",
+   "label": "Enable Task Level Activity"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-03-07 23:19:47.331538",
+ "modified": "2025-03-25 00:10:01.115028",
  "modified_by": "Administrator",
  "module": "Redtra Project Estimation",
  "name": "Project Estimation Setting",
