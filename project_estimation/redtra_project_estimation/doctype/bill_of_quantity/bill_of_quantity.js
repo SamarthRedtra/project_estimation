@@ -89,7 +89,7 @@ frappe.ui.form.on("Bill of Quantity", {
         }
     
         if(frm.doc.total_hours !== total_hours) {
-            frm.set_value('total_hours', total_hours);
+            frm.set_value('total_hours', Number((total_hours).toFixed(2)));
             console.log(total_hours,frm.doc.total_hours !== total_hours)
         }
         if(frm.doc.total_material_cost !== total_material_cost) {

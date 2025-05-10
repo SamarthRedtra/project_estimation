@@ -111,6 +111,7 @@
    "label": "Costing"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "total_hours",
    "fieldtype": "Float",
    "label": "Total Hours",
@@ -276,9 +277,13 @@
    "custom": 1,
    "link_doctype": "Project",
    "link_fieldname": "custom_project_estimation"
+  },
+  {
+   "link_doctype": "Quotation",
+   "link_fieldname": "custom_project_estimation"
   }
  ],
- "modified": "2025-03-15 22:48:49.808626",
+ "modified": "2025-05-10 16:05:08.856272",
  "modified_by": "Administrator",
  "module": "Redtra Project Estimation",
  "name": "Project Estimation",

@@ -44,17 +44,20 @@ frappe.ui.form.on('Project Estimation', {
         var me = this;  
         let total_overheads = 0;
 
-        if(frm.doc.overheads.length>0){
-            frm.doc.overheads.forEach(overhead => {
-                total_overheads += overhead.amount;
-            })
-            frm.set_value('ovehead_value', total_overheads);
+        if(frm.doc.docstatus == 2){
+            return
         }
 
-
-        console.log('inside onload')
         if(frm.doc.docstatus == 1){
             console.log('inside onload')
+
+            frm.add_custom_button(__('Quotation'), function() {
+                frappe.set_route('quotation', 'new',{
+                    custom_project_estimation: frm.doc.name
+                });   
+            },__('Create')).addClass('btn-primary')
+
+
             frm.add_custom_button(__('Project'), function() {
                 frappe.set_route('project', 'new',{
                     custom_project_estimation: frm.doc.name
@@ -74,9 +77,22 @@ frappe.ui.form.on('Project Estimation', {
                 },  
                 __("Create")
             );
-
             frm.page.set_inner_btn_group_as_primary(__("Create"));
+            return;
         }
+
+        if(frm.doc.overheads.length>0){
+            frm.doc.overheads.forEach(overhead => {
+                total_overheads += overhead.amount;
+            })
+            frm.set_value('ovehead_value', total_overheads);
+        }
+       
+
+
+        console.log('inside onload')
+        
+
 
         let total_hours = 0;
         let total_material_cost = 0;
@@ -101,9 +117,10 @@ frappe.ui.form.on('Project Estimation', {
             });
             console.log("inside items", total_hours, total_material_cost, total_material_cost_cost, total_amount, total_amount_cost, total_labour_cost, total_labour_cost_cost)
         }
-    
+        console.log(frm.doc.total_hours, total_hours, frm.doc.total_hours !== total_hours)
+        
         if(frm.doc.total_hours !== total_hours) {
-            frm.set_value('total_hours', total_hours);
+            frm.set_value('total_hours', Number((total_hours).toFixed(2)));
             console.log(total_hours,frm.doc.total_hours !== total_hours)
         }
         if(frm.doc.total_material_cost !== total_material_cost) {
