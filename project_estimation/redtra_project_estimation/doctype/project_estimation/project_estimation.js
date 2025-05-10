@@ -53,7 +53,8 @@ frappe.ui.form.on('Project Estimation', {
 
             frm.add_custom_button(__('Quotation'), function() {
                 frappe.set_route('quotation', 'new',{
-                    custom_project_estimation: frm.doc.name
+                    custom_project_estimation: frm.doc.name,
+                    customer: frm.doc.customer,
                 });   
             },__('Create')).addClass('btn-primary')
 
