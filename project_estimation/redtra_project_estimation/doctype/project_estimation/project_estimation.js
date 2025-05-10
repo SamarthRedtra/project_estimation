@@ -52,9 +52,20 @@ frappe.ui.form.on('Project Estimation', {
             console.log('inside onload')
 
             frm.add_custom_button(__('Quotation'), function() {
+
+                const items = frm.doc.items.map(item => ({
+                    item_code: item.item_code, // corrected field: should be item_code not item
+                    qty: item.qty,             // corrected field: should be qty not quantity
+                    rate: item.rate,
+                    amount: item.amount
+                }));
+            
+                console.log(items)
                 frappe.set_route('quotation', 'new',{
                     custom_project_estimation: frm.doc.name,
                     customer: frm.doc.customer,
+                    items : items
+                   
                 });   
             },__('Create')).addClass('btn-primary')
 
