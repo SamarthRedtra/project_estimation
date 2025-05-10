@@ -63,7 +63,7 @@ frappe.ui.form.on('Project Estimation', {
                 console.log(items)
                 frappe.set_route('quotation', 'new',{
                     custom_project_estimation: frm.doc.name,
-                    customer: frm.doc.customer,
+                    party_name: frm.doc.customer,
                     items : items
                    
                 });   
