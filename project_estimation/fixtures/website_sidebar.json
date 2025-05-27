@@ -1,0 +1,67 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Website Sidebar",
+  "modified": "2025-05-28 00:38:53.807056",
+  "name": "Project Sidebar",
+  "sidebar_items": [
+   {
+    "group": null,
+    "parent": "Project Sidebar",
+    "parentfield": "sidebar_items",
+    "parenttype": "Website Sidebar",
+    "route": "/rfq",
+    "title": "Request for Quotations"
+   },
+   {
+    "group": null,
+    "parent": "Project Sidebar",
+    "parentfield": "sidebar_items",
+    "parenttype": "Website Sidebar",
+    "route": "/supplier-quotations",
+    "title": "Supplier Quotation"
+   },
+   {
+    "group": null,
+    "parent": "Project Sidebar",
+    "parentfield": "sidebar_items",
+    "parenttype": "Website Sidebar",
+    "route": "/purchase-invoices",
+    "title": "Purchase Order"
+   },
+   {
+    "group": null,
+    "parent": "Project Sidebar",
+    "parentfield": "sidebar_items",
+    "parenttype": "Website Sidebar",
+    "route": "/purchase-invoices",
+    "title": "Purchase Invoice"
+   },
+   {
+    "group": null,
+    "parent": "Project Sidebar",
+    "parentfield": "sidebar_items",
+    "parenttype": "Website Sidebar",
+    "route": "/project",
+    "title": "Project"
+   },
+   {
+    "group": null,
+    "parent": "Project Sidebar",
+    "parentfield": "sidebar_items",
+    "parenttype": "Website Sidebar",
+    "route": "/project-task",
+    "title": "Task"
+   },
+   {
+    "group": null,
+    "parent": "Project Sidebar",
+    "parentfield": "sidebar_items",
+    "parenttype": "Website Sidebar",
+    "route": "/material-requests",
+    "title": "Material Request"
+   }
+  ],
+  "title": "Project Sidebar"
+ }
+]

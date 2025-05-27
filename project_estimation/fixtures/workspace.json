@@ -1,25 +1,24 @@
 [
  {
-  "app": "erpnext",
   "charts": [
    {
     "chart_name": "Project Summary",
-    "label": "Open Projects"
+    "label": "Open Projects",
+    "parent": "Projects",
+    "parentfield": "charts",
+    "parenttype": "Workspace"
    }
   ],
   "content": "[{\"id\":\"VDMms0hapk\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Open Projects\",\"col\":12}},{\"id\":\"7Mbx6I5JUf\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"nyuMo9byw7\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Your Shortcuts</b></span>\",\"col\":12}},{\"id\":\"dILbX_r0ve\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Task\",\"col\":3}},{\"id\":\"JT8ntrqRiJ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Project\",\"col\":3}},{\"id\":\"RsafDhm1MS\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Timesheet\",\"col\":3}},{\"id\":\"DbctrdmAy1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard\",\"col\":3}},{\"id\":\"jx5aPK9aXN\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Learn Project Management\",\"col\":3}},{\"id\":\"ncIHWGQQvX\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"oGhjvYjfv-\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports &amp; Masters</b></span>\",\"col\":12}},{\"id\":\"TdsgJyG3EI\",\"type\":\"card\",\"data\":{\"card_name\":\"Projects\",\"col\":4}},{\"id\":\"nIc0iyvf1T\",\"type\":\"card\",\"data\":{\"card_name\":\"Time Tracking\",\"col\":4}},{\"id\":\"8G1if4jsQ7\",\"type\":\"card\",\"data\":{\"card_name\":\"Reports\",\"col\":4}},{\"id\":\"o7qTNRXZI8\",\"type\":\"card\",\"data\":{\"card_name\":\"Settings\",\"col\":4}}]",
   "custom_blocks": [],
   "docstatus": 0,
   "doctype": "Workspace",
-  "external_link": null,
   "for_user": "",
   "hide_custom": 0,
   "icon": "project",
   "indicator_color": null,
   "is_hidden": 0,
   "label": "Projects",
-  "link_to": null,
-  "link_type": null,
   "links": [
    {
     "dependencies": null,
@@ -33,6 +32,9 @@
     "link_type": null,
     "onboard": 0,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Card Break"
    },
@@ -48,6 +50,9 @@
     "link_type": "DocType",
     "onboard": 1,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -63,6 +68,9 @@
     "link_type": "DocType",
     "onboard": 1,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -78,6 +86,9 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -93,6 +104,9 @@
     "link_type": null,
     "onboard": 0,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Card Break"
    },
@@ -108,6 +122,9 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -123,6 +140,9 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Card Break"
    },
@@ -138,6 +158,9 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -153,6 +176,9 @@
     "link_type": "DocType",
     "onboard": 1,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -168,6 +194,9 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -183,6 +212,9 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -198,6 +230,9 @@
     "link_type": "DocType",
     "onboard": 1,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -213,6 +248,9 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -228,6 +266,9 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -243,6 +284,9 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -258,6 +302,9 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Card Break"
    },
@@ -273,6 +320,9 @@
     "link_type": "Report",
     "onboard": 0,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -288,6 +338,9 @@
     "link_type": "Report",
     "onboard": 1,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -303,6 +356,9 @@
     "link_type": "Report",
     "onboard": 0,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -318,6 +374,9 @@
     "link_type": "Report",
     "onboard": 0,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -333,6 +392,9 @@
     "link_type": "Report",
     "onboard": 0,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -348,6 +410,9 @@
     "link_type": "Report",
     "onboard": 0,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -363,6 +428,9 @@
     "link_type": "Report",
     "onboard": 0,
     "only_for": null,
+    "parent": "Projects",
+    "parentfield": "links",
+    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    }
@@ -386,6 +454,10 @@
     "kanban_board": null,
     "label": "Learn Project Management",
     "link_to": null,
+    "parent": "Projects",
+    "parentfield": "shortcuts",
+    "parenttype": "Workspace",
+    "report_ref_doctype": null,
     "restrict_to_domain": null,
     "stats_filter": null,
     "type": "URL",
@@ -399,6 +471,10 @@
     "kanban_board": null,
     "label": "Task",
     "link_to": "Task",
+    "parent": "Projects",
+    "parentfield": "shortcuts",
+    "parenttype": "Workspace",
+    "report_ref_doctype": null,
     "restrict_to_domain": null,
     "stats_filter": "{\n    \"_assign\": [\"like\", '%' + frappe.session.user + '%'],\n    \"status\": \"Open\"\n}",
     "type": "DocType",
@@ -412,6 +488,10 @@
     "kanban_board": null,
     "label": "Project",
     "link_to": "Project",
+    "parent": "Projects",
+    "parentfield": "shortcuts",
+    "parenttype": "Workspace",
+    "report_ref_doctype": null,
     "restrict_to_domain": null,
     "stats_filter": "{\n    \"status\": \"Open\"\n}",
     "type": "DocType",
@@ -425,6 +505,10 @@
     "kanban_board": null,
     "label": "Timesheet",
     "link_to": "Timesheet",
+    "parent": "Projects",
+    "parentfield": "shortcuts",
+    "parenttype": "Workspace",
+    "report_ref_doctype": null,
     "restrict_to_domain": null,
     "stats_filter": null,
     "type": "DocType",
@@ -438,13 +522,16 @@
     "kanban_board": null,
     "label": "Dashboard",
     "link_to": "Project",
+    "parent": "Projects",
+    "parentfield": "shortcuts",
+    "parenttype": "Workspace",
+    "report_ref_doctype": null,
     "restrict_to_domain": null,
     "stats_filter": null,
     "type": "Dashboard",
     "url": null
    }
   ],
-  "title": "Projects",
-  "type": "Workspace"
+  "title": "Projects"
  }
 ]

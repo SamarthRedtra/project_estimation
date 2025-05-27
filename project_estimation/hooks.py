@@ -261,7 +261,11 @@ fixtures = [ {
             "Projects"
         ]
     ]
-}  ]
+},
+            {
+                "doctype": "Website Sidebar",
+            }
+            ]
 
 
 website_route_rules = [{'from_route': '/task-ui/<path:app_path>', 'to_route': 'task-ui'},]
