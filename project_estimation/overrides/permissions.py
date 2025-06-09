@@ -11,7 +11,7 @@ def get_supplier_for_user(user: str) -> str | None:
 def is_supplier_user(user: str) -> bool:
     """Check if the user has a Supplier-related role."""
     roles = frappe.get_roles(user)
-    if "Administrator" in roles:
+    if "System Manager" in roles:
         return False
     return bool(SUPPLIER_ROLES.intersection(set()))
 
