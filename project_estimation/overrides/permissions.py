@@ -1,6 +1,6 @@
 import frappe
 
-SUPPLIER_ROLES = {"Supplier", "Supplier User"}
+SUPPLIER_ROLES = {"Supplier User"}
 
 def get_supplier_for_user(user: str) -> str | None:
     """Get the linked Supplier for the given user."""
@@ -10,7 +10,10 @@ def get_supplier_for_user(user: str) -> str | None:
 
 def is_supplier_user(user: str) -> bool:
     """Check if the user has a Supplier-related role."""
-    return bool(SUPPLIER_ROLES.intersection(set(frappe.get_roles(user))))
+    roles = frappe.get_roles(user)
+    if "Administrator" in roles:
+        return False
+    return bool(SUPPLIER_ROLES.intersection(set()))
 
 def rfq_query(user: str) -> str:
     supplier = get_supplier_for_user(user)
