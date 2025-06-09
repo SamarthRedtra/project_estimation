@@ -260,16 +260,7 @@ override_doctype_class = {
 
 import project_estimation.overrides.expense
 
-fixtures = [ {
-    "doctype": "Workspace",
-    "filters": [
-        [
-            "name",
-            "=",
-            "Projects"
-        ]
-    ]
-},
+fixtures = [
             {
                 "doctype": "Website Sidebar",
             },
