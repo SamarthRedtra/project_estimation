@@ -13,7 +13,9 @@ def is_supplier_user(user: str) -> bool:
     roles = frappe.get_roles(user)
     if "System Manager" in roles:
         return False
-    return bool(SUPPLIER_ROLES.intersection(set()))
+    if "Supplier User" in roles:
+        return True
+    return False
 
 def rfq_query(user: str) -> str:
     supplier = get_supplier_for_user(user)
