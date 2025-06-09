@@ -126,12 +126,20 @@ doctype_js = {"Sales Invoice" : "public/js/sales_invoice.js",
 # }
 #
 # has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
+# 	"": "frappe.desk.doctype.event.event.has_permission",
 # }
 
 # DocType Class
 # ---------------
 # Override standard doctype classes
+
+
+permission_query_conditions = {
+    "Request for Quotation": "project_estimation.overrides.permissions.rfq_query",
+    "Purchase Order": "project_estimation.overrides.permissions.po_query",
+    "Purchase Invoice": "project_estimation.overrides.permissions.pi_query",
+    "Task": "project_estimation.overrides.permissions.task_query",
+}
 
 override_doctype_class = {
 	"Purchase Order": "project_estimation.overrides.purchase_order.CustomPurchaseOrder",
@@ -264,6 +272,19 @@ fixtures = [ {
 },
             {
                 "doctype": "Website Sidebar",
+            },
+            {
+                "doctype": "Role",
+                "filters": [
+                    [
+                        "name",
+                        "in",
+                        [
+                            "Supplier User",
+                            "Project Estimation User"
+                        ]
+                    ]
+                ]
             }
             ]
 
